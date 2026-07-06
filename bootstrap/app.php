@@ -11,11 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+        // 🌟 AGREGA ESTA LÍNEA AQUÍ PARA REPARAR EL ERROR DE LOCALHOST EN CODESPACES
+        $middleware->trustProxies(at: '*');
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
-        );
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
     })->create();
