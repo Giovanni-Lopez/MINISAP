@@ -3,8 +3,8 @@
         
         <nav class="space-y-2">
             <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-900/30 transition-all">
-                <i class="fa-solid fa-chart-line text-lg w-5 text-center"></i>
-                <span>Muro Activo</span>
+                <i class="fa-solid fa-clipboard-list text-lg w-5 text-center"></i>
+                <span>CheckList</span>
             </a>
 
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700/50 hover:text-white transition-all">

@@ -29,56 +29,7 @@
                         @include('ops.dashboard-kpis')
                     </div>
                      
-                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg h-fit">
-                        <h2 class="text-lg font-bold mb-4 flex items-center gap-2 text-white">
-                            <i class="fa-solid fa-pen-to-square text-red-500"></i> Registrar Nueva Incidencia
-                        </h2>
-                        <p class="text-xs text-gray-400 mb-6">Reporta problemas logísticos, fallas en sucursales o trabas operativas inmediatamente.</p>
-
-                        <form action="/incidencias/store" method="POST" enctype="multipart/form-data" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Sucursal Afectada</label>
-                                <select name="sucursal" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:outline-none focus:border-red-500 transition">
-                                    <option value="">Seleccione Sucursal...</option>
-                                    @foreach(array_keys($sucursalesConPlacas) as $sucursal)
-                                        <option value="{{ $sucursal }}">{{ $sucursal }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Placa del Vehículo</label>
-                                <select name="placa" id="select-placa" disabled required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:outline-none focus:border-red-500 transition disabled:opacity-40 disabled:cursor-not-allowed">
-                                    <option value="">Seleccione primero una sucursal...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Nivel de Urgencia</label>
-                                <select name="urgencia" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:outline-none focus:border-red-500 transition">
-                                    <option value="Baja">🟢 Baja (No interrumpe operación)</option>
-                                    <option value="Media" selected>🟡 Media (Afectación parcial)</option>
-                                    <option value="Alta">🟠 Alta (Retraso de despacho)</option>
-                                    <option value="Crítica">🔴 Crítica (Operación detenida)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Descripción del "Lamento"</label>
-                                <textarea name="descripcion" rows="4" required placeholder="Describe detalladamente el problem con la carga, equipo o retraso..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-gray-100 focus:outline-none focus:border-red-500 transition placeholder-gray-600 text-sm"></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 uppercase mb-2">Evidencia Fotográfica (Opcional)</label>
-                                <input type="file" name="imagen" accept="image/*" class="w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-700 file:text-white hover:file:bg-gray-600 cursor-pointer">
-                            </div>
-
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition shadow-lg flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-bullhorn"></i> Publicar en el Muro
-                            </button>
-                        </form>
-                    </div>
+                    
 
                     <div class="lg:col-span-2 space-y-4">
                         <h2 class="text-lg font-bold flex items-center gap-2 text-white mb-2">

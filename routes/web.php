@@ -20,6 +20,9 @@ Route::middleware('auth')->group(function () {
     // 2. Ruta para RECIBIR los datos del formulario al dar click en "Publicar"
     Route::post('/incidencias/store', [IncidenciaController::class, 'store']);
     
+    // Asegúrate de que termine con ->name('incidencias.store')
+    Route::post('/incidencias/store', [IncidenciaController::class, 'store'])->name('incidencias.store');
+    
     // 3. Ruta para Cerrar Sesión (¡Súper útil para la expo!)
     Route::post('/logout', function (\Illuminate\Http\Request $request) {
         Auth::logout();
@@ -54,3 +57,27 @@ Route::post('/login', function (\Illuminate\Http\Request $request) {
         'email' => 'Las credenciales proporcionadas no coinciden con nuestros registros.',
     ])->onlyInput('email');
 });
+
+// Rutas para el Registro de Combustible
+Route::get('/combustible', function () {
+    // Heredamos los mismos datos de flota que ya tienes en tu controlador
+    $sucursalesConPlacas = config('flota.sucursales', []);
+    $usuariosPorSucursal = config('flota.usuarios', []); // <-- ¡Leído directamente desde el archivo flota!
+    return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
+})->middleware('auth');
+
+Route::post('/combustible/store', function (\Illuminate\Http\Request $request) {
+    // Por ahora redirecciona con éxito para simular el guardado en tu entrega
+    return redirect()->back()->with('exito', '¡Registro de Combustible guardado con éxito!');
+})->name('combustible.store');
+
+
+// Rutas para el Registro de Kilometraje Diario
+Route::get('/km-diarios', function () {
+    $sucursalesConPlacas = config('flota.sucursales', []);
+    return view('ops.km_sucursal', compact('sucursalesConPlacas'));
+})->middleware('auth');
+
+Route::post('/km-diarios/store', function (\Illuminate\Http\Request $request) {
+    return redirect()->back()->with('exito', '¡Registro de Kilometraje guardado con éxito!');
+})->name('km.store');

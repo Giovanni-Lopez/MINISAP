@@ -8,29 +8,35 @@ use Illuminate\Support\Carbon; // Importamos Carbon para manejar las fechas simu
 class IncidenciaController extends Controller
 {
     public function index()
-    {
-        // 1. Jalamos los datos de la sesión
-        $rawIncidencias = session('simulador_incidencias', []);
+{
+    // 1. Jalamos los datos de la sesión
+    $rawIncidencias = session('simulador_incidencias', []);
 
-        // 2. Mapeamos cada elemento forzándolo a ser un objeto con fechas Carbon reales
-        $mapped = array_map(function($item) {
-            $obj = (object) $item;
-            
-            // Si created_at es un texto, lo transformamos en un objeto Carbon para que funcione ->diffForHumans()
-            if (isset($obj->created_at) && is_string($obj->created_at)) {
-                $obj->created_at = Carbon::parse($obj->created_at);
-            }
-            
-            return $obj;
-        }, $rawIncidencias);
-
-        // 3. Lo envolvemos en una colección de Laravel para tus KPIs
-        $incidencias = collect($mapped);
+    // 2. Mapeamos cada elemento forzándolo a ser un objeto con fechas Carbon reales
+    $mapped = array_map(function($item) {
+        $obj = (object) $item;
         
-        $sucursalesConPlacas = config('flota.sucursales', []);
+        // Si created_at es un texto, lo transformamos en un objeto Carbon para que funcione ->diffForHumans()
+        if (isset($obj->created_at) && is_string($obj->created_at)) {
+            $obj->created_at = \Carbon\Carbon::parse($obj->created_at);
+        }
+        
+        return $obj;
+    }, $rawIncidencias);
 
-        return view('ops.muro', compact('incidencias', 'sucursalesConPlacas'));
+    // 3. Lo envolvemos en una colección de Laravel para tus KPIs
+    $incidencias = collect($mapped);
+    
+    $sucursalesConPlacas = config('flota.sucursales', []);
+
+    // 🌟 4. NUEVA BIFURCACIÓN: Si el usuario es Sucursal, cargamos su plantilla exclusiva
+    if (auth()->user()->role === 'sucursal') {
+        return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
     }
+
+    // 5. Si es Administrador, se carga el muro completo con el feed histórico
+    return view('ops.muro', compact('incidencias', 'sucursalesConPlacas'));
+}
 
     public function store(Request $request)
     {

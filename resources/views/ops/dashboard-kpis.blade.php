@@ -1,69 +1,46 @@
-<div class="max-w-7xl mx-auto px-6 pt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 shadow-lg">
-        <div class="flex justify-between items-center">
-            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                <i class="fa-solid fa-folder-open text-xl"></i>
-            </div>
-            <span class="text-[10px] font-bold text-gray-400 tracking-widest bg-gray-900/50 px-2 py-1 rounded-md">REPORTES</span>
+    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
+        <div class="space-y-2 relative z-10">
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-400">Control Operativo</span>
+            <h3 class="text-3xl font-black text-white tracking-tight">
+                {{ $incidencias->where('tipo', 'checklist')->count() ?? 0 }}
+            </h3>
+            <p class="text-xs text-blue-400 flex items-center gap-1 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span> Checklist Completados
+            </p>
         </div>
-        <div class="mt-4">
-            <h3 class="text-3xl font-extrabold text-white font-sans tracking-tight">{{ $incidencias->count() }}</h3>
-            <p class="text-xs font-medium text-gray-400 mt-1 uppercase tracking-wider">Total de Incidencias</p>
+        <div class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 text-xl border border-blue-500/20 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+            <i class="fa-solid fa-clipboard-check"></i>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-blue-500"></div>
     </div>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 shadow-lg">
-        <div class="flex justify-between items-center">
-            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 animate-pulse">
-                <i class="fa-solid fa-triangle-exclamation text-xl"></i>
-            </div>
-            <span class="text-[10px] font-bold text-red-400 tracking-widest bg-red-950/30 px-2 py-1 rounded-md">ALERTA</span>
-        </div>
-        <div class="mt-4">
-            <h3 class="text-3xl font-extrabold text-red-500 font-sans tracking-tight">
-                {{-- Filtramos ignorando mayúsculas/minúsculas y tildes comunes --}}
-                {{ $incidencias->filter(function($i) {
-                    return in_array(strtolower($i->urgencia), ['alta', 'crítica', 'critica', 'alto', 'crítico', 'critico']);
-                })->count() }}
+    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-amber-500/40 transition-all duration-300">
+        <div class="space-y-2 relative z-10">
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-400">Eficiencia Energética</span>
+            <h3 class="text-3xl font-black text-white tracking-tight">
+                {{ $incidencias->where('tipo', 'combustible')->count() ?? 0 }}
             </h3>
-            <p class="text-xs font-medium text-gray-400 mt-1 uppercase tracking-wider">Nivel Crítico</p>
+            <p class="text-xs text-amber-400 flex items-center gap-1 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Alertas de Combustible
+            </p>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-red-500"></div>
+        <div class="w-14 h-14 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 text-xl border border-amber-500/20 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+            <i class="fa-solid fa-gas-pump"></i>
+        </div>
     </div>
 
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 shadow-lg">
-        <div class="flex justify-between items-center">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-                <i class="fa-solid fa-truck-front text-xl"></i>
-            </div>
-            <span class="text-[10px] font-bold text-amber-400 tracking-widest bg-amber-950/20 px-2 py-1 rounded-md">FLOTA</span>
-        </div>
-        <div class="mt-4">
-            <h3 class="text-3xl font-extrabold text-amber-500 font-sans tracking-tight">
-                {{ $incidencias->whereNotNull('placa')->filter(function($i) { return $i->placa !== ''; })->unique('placa')->count() }}
+    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex items-center justify-between shadow-xl relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
+        <div class="space-y-2 relative z-10">
+            <span class="text-xs font-mono uppercase tracking-wider text-gray-400">Monitoreo Live</span>
+            <h3 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                <span class="text-emerald-400">Activo</span>
             </h3>
-            <p class="text-xs font-medium text-gray-400 mt-1 uppercase tracking-wider">Placas Afectadas</p>
+            <p class="text-xs text-gray-400 font-medium">Estado del Sistema</p>
         </div>
-        <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-amber-500"></div>
-    </div>
-
-    <div class="bg-gray-800 border border-gray-700 rounded-xl p-5 relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 shadow-lg">
-        <div class="flex justify-between items-center">
-            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-                <i class="fa-solid fa-square-poll-vertical text-xl"></i>
-            </div>
-            <span class="text-[10px] font-bold text-emerald-400 tracking-widest bg-emerald-950/20 px-2 py-1 rounded-md">LIVE</span>
+        <div class="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-500 text-xl border border-emerald-500/20 group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <i class="fa-solid fa-square-poll-vertical"></i>
         </div>
-        <div class="mt-4">
-            <h3 class="text-lg font-bold text-emerald-400 flex items-center gap-1.5 mt-2">
-                <span class="h-2.5 w-2.5 rounded-full bg-emerald-500 inline-block animate-ping"></span>
-                Activo
-            </h3>
-            <p class="text-xs font-medium text-gray-400 mt-2 uppercase tracking-wider">Estado del Sistema</p>
-        </div>
-        <div class="absolute bottom-0 left-0 right-0 h-[3px] bg-emerald-500"></div>
     </div>
 
 </div>
