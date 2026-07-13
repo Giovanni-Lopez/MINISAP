@@ -27,7 +27,7 @@ COPY . .
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Asegurar permisos para Laravel
-RUN chown -y -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Apuntar Apache a la carpeta /public de Laravel
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
