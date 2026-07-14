@@ -3,67 +3,48 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon; // Importamos Carbon para manejar las fechas simuladas
+use App\Models\Incidencia; // <--- IMPORTAMOS TU MODELO REAL
+use Carbon\Carbon;
 
 class IncidenciaController extends Controller
 {
     public function index()
-{
-    // 1. Jalamos los datos de la sesión
-    $rawIncidencias = session('simulador_incidencias', []);
-
-    // 2. Mapeamos cada elemento forzándolo a ser un objeto con fechas Carbon reales
-    $mapped = array_map(function($item) {
-        $obj = (object) $item;
+    {
+        // 1. Jalamos TODAS las incidencias reales ordenadas desde la base de datos
+        $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
         
-        // Si created_at es un texto, lo transformamos en un objeto Carbon para que funcione ->diffForHumans()
-        if (isset($obj->created_at) && is_string($obj->created_at)) {
-            $obj->created_at = \Carbon\Carbon::parse($obj->created_at);
+        $sucursalesConPlacas = config('flota.sucursales', []);
+
+        // 🌟 2. Si el usuario es de Sucursal, cargamos su plantilla exclusiva
+        // Nota: Asegúrate de que el rol guardado en tu base de datos coincida con 'user' o 'sucursal'
+        if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
+            return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
         }
-        
-        return $obj;
-    }, $rawIncidencias);
 
-    // 3. Lo envolvemos en una colección de Laravel para tus KPIs
-    $incidencias = collect($mapped);
-    
-    $sucursalesConPlacas = config('flota.sucursales', []);
-
-    // 🌟 4. NUEVA BIFURCACIÓN: Si el usuario es Sucursal, cargamos su plantilla exclusiva
-    if (auth()->user()->role === 'sucursal') {
-        return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
+        // 3. Si es Administrador, se carga el muro completo con el feed histórico real
+        return view('ops.muro', compact('incidencias', 'sucursalesConPlacas'));
     }
-
-    // 5. Si es Administrador, se carga el muro completo con el feed histórico
-    return view('ops.muro', compact('incidencias', 'sucursalesConPlacas'));
-}
 
     public function store(Request $request)
     {
+        // 1. Validamos los datos reales que llegan del formulario
         $request->validate([
             'sucursal' => 'required|string',
             'descripcion' => 'required|string',
             'urgencia' => 'required',
         ]);
 
-        $incidenciasArray = session('simulador_incidencias', []);
-
-        // Creamos la nueva incidencia guardando la fecha como un string limpio
-        $nuevaIncidencia = [
-            'id' => count($incidenciasArray) + 1,
+        // 2. Guardamos la incidencia DIRECTO en tu base de datos de Railway
+        Incidencia::create([
             'sucursal' => $request->sucursal,
             'placa' => $request->placa, 
             'urgencia' => $request->urgencia,
             'descripcion' => $request->descripcion,
-            'estado' => 'Pendiente',
-            'imagen_evidencia' => null, 
-            'created_at' => now()->toDateTimeString(), // Guardamos el momento exacto
-        ];
+            'estado' => 'Pendiente', // Estado por defecto
+            'imagen_evidencia' => null, // De momento null, luego puedes procesar archivos si lo requieres
+        ]);
 
-        array_unshift($incidenciasArray, $nuevaIncidencia);
-
-        session(['simulador_incidencias' => $incidenciasArray]);
-
-        return back()->with('exito', 'Reporte publicado en el Muro de Operaciones.');
+        // 3. Redireccionamos con el mensaje de éxito
+        return back()->with('exito', 'Reporte publicado en el Muro de Operaciones y guardado en la Base de Datos.');
     }
 }

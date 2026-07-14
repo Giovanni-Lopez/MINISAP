@@ -12,14 +12,15 @@ return new class extends Migration
 public function up(): void
 {
     Schema::create('incidencias', function (Blueprint $table) {
-        $table->id();
-        $table->string('sucursal'); 
-        $table->text('descripcion'); 
-        $table->enum('urgencia', ['Baja', 'Media', 'Alta', 'Crítica'])->default('Media');
-        $table->string('imagen_evidencia')->nullable(); 
-        $table->enum('estado', ['Pendiente', 'En Revisión', 'Resuelto'])->default('Pendiente');
-        $table->timestamps();
-    });
+            $table->id();
+            $table->string('sucursal');
+            $table->string('placa')->nullable(); // <--- (la dejamos nullable por si algún reporte no lleva vehículo)
+            $table->text('descripcion');
+            $table->enum('urgencia', ['Baja', 'Media', 'Alta', 'Crítica'])->default('Media');
+            $table->string('imagen_evidencia')->nullable();
+            $table->enum('estado', ['Pendiente', 'En Revisión', 'Resuelto'])->default('Pendiente');
+            $table->timestamps();
+        });
 }
 
     /**
