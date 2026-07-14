@@ -6,10 +6,27 @@
     <title>RENOSA - Muro de Lamentos Operativo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Estilizar barra de scroll para el feed */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111827; /* bg-gray-900 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #374151; /* bg-gray-700 */
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #00ff62a6; /* Rojo RENOSA para el hover */
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col m-0 p-0 relative">
+<body class="bg-gray-900 text-gray-100 font-sans h-screen flex flex-col overflow-hidden m-0 p-0 relative">
     
-    <nav class="bg-gray-800 border-b border-red-600 px-4 py-4 shadow-xl flex justify-between items-center fixed top-0 w-full z-50 h-16">
+    <nav class="bg-gray-800 border-b border-red-600 px-4 py-4 shadow-xl flex justify-between items-center h-16 w-full z-50 shrink-0">
         <div class="flex items-center gap-3">
             <button id="btn-toggle-menu" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none md:hidden block">
                 <i class="fa-solid fa-bars"></i>
@@ -51,11 +68,11 @@
         </div>
     </div>
 
-    <div class="flex flex-1 w-full pt-16">
+    <div class="flex flex-1 w-full h-full overflow-hidden">
 
         @include('layouts.sidebar')
 
-        <main class="flex-1 bg-gray-900 w-full overflow-x-hidden">
+        <main class="flex-1 bg-gray-900 w-full h-full overflow-y-auto overflow-x-hidden pb-12 custom-scrollbar">
             <div class="p-4 md:p-6 w-full max-w-[1600px] mx-auto">
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -75,7 +92,8 @@
                             </div>
                         @endif
 
-                        <div class="space-y-4">
+                        <!-- Contenedor del Feed con altura máxima fija y scroll interno -->
+                        <div class="space-y-4 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
                             @forelse($incidencias as $incidencia)
                                 @php
                                     $borderColor = 'border-gray-700';
