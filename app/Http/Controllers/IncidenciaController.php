@@ -61,4 +61,27 @@ class IncidenciaController extends Controller
         // 3. Redireccionamos con el mensaje de éxito
         return back()->with('exito', 'Reporte publicado en el Muro de Operaciones y guardado en la Base de Datos.');
     }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'estado' => 'required|in:Pendiente,En Revisión,Resuelto',
+            'comentarios' => 'nullable|string|max:1000'
+        ]);
+
+        $incidencia = Incidencia::findOrFail($id);
+        $incidencia->estado = $request->estado;
+        
+        // Si tu tabla de incidencias ya tiene un campo para notas, comentarios o bitácora, lo guardamos.
+        // Si no lo tiene, podemos guardar temporalmente el comentario o puedes crear la columna en la BD.
+        if (\Schema::hasColumn('incidencias', 'comentarios')) {
+            $incidencia->comentarios = $request->comentarios;
+        }
+
+        $incidencia->save();
+
+        return redirect()->back()->with('success', '¡Registro actualizado con éxito!');
+    }
+
+
 }

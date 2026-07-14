@@ -81,3 +81,5 @@ Route::get('/km-diarios', function () {
 Route::post('/km-diarios/store', function (\Illuminate\Http\Request $request) {
     return redirect()->back()->with('exito', '¡Registro de Kilometraje guardado con éxito!');
 })->name('km.store');
+
+Route::post('/incidencias/{id}/actualizar', [App\Http\Controllers\IncidenciaController::class, 'update'])->name('incidencias.update');

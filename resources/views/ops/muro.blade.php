@@ -70,7 +70,7 @@
                         </h2>
 
                         @if(session('exito'))
-                            <div class="bg-emerald-950 border border-emerald-500 text-emerald-300 p-4 rounded-lg text-sm flex items-center gap-2 mb-4">
+                            <div class="bg-emerald-950 border border-emerald-500 text-emerald-300 p-4 rounded-lg text-sm flex items-center gap-2 mb-4 animate-bounce">
                                 <i class="fa-solid fa-circle-check text-emerald-500"></i> {{ session('exito') }}
                             </div>
                         @endif
@@ -93,6 +93,15 @@
                                     if(in_array($urgenciaLower, ['baja', 'bajo'])) { 
                                         $borderColor = 'border-emerald-700'; 
                                         $badgeColor = 'bg-emerald-950 text-emerald-400'; 
+                                    }
+
+                                    // Determinar color de badge según el estado actual
+                                    $estadoActual = $incidencia->estado ?? 'Pendiente';
+                                    $estadoClass = 'bg-red-950 text-red-400 border border-red-800';
+                                    if($estadoActual === 'En Revisión') {
+                                        $estadoClass = 'bg-amber-950 text-amber-400 border border-amber-800';
+                                    } elseif($estadoActual === 'Resuelto') {
+                                        $estadoClass = 'bg-emerald-950 text-emerald-400 border border-emerald-800';
                                     }
                                 @endphp
 
@@ -117,13 +126,33 @@
                                         
                                         <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
                                             <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $badgeColor }}">{{ $incidencia->urgencia }}</span>
-                                            <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase bg-gray-900 border border-gray-700 text-gray-400">{{ $incidencia->estado ?? 'Pendiente' }}</span>
+                                            
+                                            <form action="{{ route('incidencias.update', $incidencia->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <select name="estado" onchange="this.form.submit()" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $estadoClass }} bg-gray-950/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500">
+                                                    <option value="Pendiente" {{ $estadoActual == 'Pendiente' ? 'selected' : '' }}>🔴 Pendiente</option>
+                                                    <option value="En Revisión" {{ $estadoActual == 'En Revisión' ? 'selected' : '' }}>🟡 En Proceso</option>
+                                                    <option value="Resuelto" {{ $estadoActual == 'Resuelto' ? 'selected' : '' }}>🟢 Resuelto</option>
+                                                </select>
+                                            </form>
                                         </div>
                                     </div>
 
                                     <p class="text-sm text-gray-300 leading-relaxed bg-gray-900/40 p-3 rounded-lg border border-gray-700/50 break-words">
                                         {{ $incidencia->descripcion }}
                                     </p>
+
+                                    <!-- Sección de Notas de Resolución / Bitácora -->
+                                    @if(!empty($incidencia->comentarios))
+                                        <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-2">
+                                            <span class="text-[9px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                                                <i class="fa-solid fa-wrench text-[10px]"></i> Notas de Resolución / Bitácora:
+                                            </span>
+                                            <p class="text-xs text-gray-300 italic break-words">
+                                                {{ $incidencia->comentarios }}
+                                            </p>
+                                        </div>
+                                    @endif
 
                                     @if($incidencia->imagen_evidencia)
                                         <div class="w-full max-h-60 rounded-lg overflow-hidden border border-gray-700">
@@ -132,8 +161,13 @@
                                     @endif
 
                                     <div class="text-[11px] text-gray-500 flex justify-between items-center border-t border-gray-700/50 pt-3 font-mono">
-                                        <span>ID: #00{{ $incidencia->id }}</span>
-                                        <span><i class="fa-regular fa-clock mr-1"></i> {{ $incidencia->created_at->diffForHumans() }}</span>
+                                        <span>ID: #00{{ $incidencia->id }} | <i class="fa-regular fa-clock mr-1"></i> {{ $incidencia->created_at->diffForHumans() }}</span>
+                                        
+                                        <button type="button" 
+                                            onclick="abrirModalGestion({{ json_encode($incidencia) }})"
+                                            class="px-3 py-1 bg-gray-900 border border-gray-700 hover:border-blue-500 hover:text-white text-gray-400 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all">
+                                            <i class="fa-solid fa-sliders text-[9px]"></i> Gestionar / Notas
+                                        </button>
                                     </div>
                                 </div>
                             @empty
@@ -149,6 +183,56 @@
             </div>
         </main>
 
+    </div>
+
+    <div id="modalGestion" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 mx-4">
+            
+            <div class="flex justify-between items-center pb-4 border-b border-gray-800">
+                <div>
+                    <h3 class="text-base font-black text-white tracking-tight flex items-center gap-2">
+                        <span id="modalSucursal" class="text-red-500">Sucursal</span> 
+                        <span id="modalPlaca" class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] rounded font-mono">Placa</span>
+                    </h3>
+                    <p class="text-[11px] text-gray-500 mt-0.5" id="modalId">ID: #000</p>
+                </div>
+                <button onclick="cerrarModalGestion()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="formActualizar" method="POST" action="" class="space-y-4 mt-4">
+                @csrf
+                
+                <div class="bg-gray-950 p-4 rounded-xl border border-gray-800/50">
+                    <span class="text-[9px] font-mono uppercase tracking-wider text-gray-500 block mb-1">Falla Reportada:</span>
+                    <p id="modalDescripcion" class="text-sm text-gray-300 leading-relaxed italic">Sin descripción.</p>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1.5">Cambiar Estado</label>
+                    <select id="modalEstado" name="estado" class="w-full bg-gray-950 border border-gray-800 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all">
+                        <option value="Pendiente">🔴 Pendiente</option>
+                        <option value="En Revisión">🟡 En Proceso</option>
+                        <option value="Resuelto">🟢 Resuelto</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1.5">Notas de Resolución / Bitácora</label>
+                    <textarea id="modalComentarios" name="comentarios" rows="3" placeholder="Ej. El mecánico ya revisó la unidad, requiere refacción de frenos..." class="w-full bg-gray-950 border border-gray-800 text-white rounded-xl p-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-gray-700 text-sm"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="cerrarModalGestion()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold rounded-xl transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-red-500/20">
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -194,6 +278,42 @@
                 }
             });
         }
+
+        // Lógica de apertura/cierre del modal
+        function abrirModalGestion(incidencia) {
+            const modal = document.getElementById('modalGestion');
+            
+            document.getElementById('modalSucursal').innerText = incidencia.sucursal || 'Sin Sucursal';
+            document.getElementById('modalPlaca').innerText = incidencia.placa || 'S/P';
+            document.getElementById('modalId').innerText = 'ID: #00' + incidencia.id;
+            document.getElementById('modalDescripcion').innerText = incidencia.descripcion || 'Sin descripción';
+            document.getElementById('modalEstado').value = incidencia.estado || 'Pendiente';
+            document.getElementById('modalComentarios').value = incidencia.comentarios || '';
+
+            // Asignar ruta dinámica de formulario
+            document.getElementById('formActualizar').action = `/incidencias/${incidencia.id}/actualizar`;
+
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.firstElementChild.classList.remove('scale-95');
+                modal.firstElementChild.classList.add('scale-100');
+            }, 10);
+        }
+
+        function cerrarModalGestion() {
+            const modal = document.getElementById('modalGestion');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Cerrar si se da click fuera del contenedor
+        document.getElementById('modalGestion').addEventListener('click', function(e) {
+            if (e.target === this) cerrarModalGestion();
+        });
     </script>
 
 </body>
