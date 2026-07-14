@@ -8,21 +8,21 @@ use Illuminate\Http\Request;
 class VehiculoController extends Controller
 {
     public function index()
-{
-    // Traemos todos los vehículos de la base de datos ordenados
-    $vehiculos = Vehiculo::orderBy('sucursal')->orderBy('placa')->get();
+    {
+        // Traemos todos los vehículos de la base de datos ordenados
+        $vehiculos = Vehiculo::orderBy('sucursal')->orderBy('placa')->get();
 
-    $sucursalesDisponibles = [
-        'Distribucion',
-        'Operaciones',
-        'Suc. Ilopango',
-        'Suc. Lourdes',
-        'Suc. San Salvador',
-        'Suc. Santa Ana'
-    ];
+        $sucursalesDisponibles = [
+            'Distribucion',
+            'Operaciones',
+            'Suc. Ilopango',
+            'Suc. Lourdes',
+            'Suc. San Salvador',
+            'Suc. Santa Ana'
+        ];
 
-    return view('ops.flota', compact('vehiculos', 'sucursalesDisponibles'));
-}
+        return view('ops.flota', compact('vehiculos', 'sucursalesDisponibles'));
+    }
 
     public function store(Request $request)
     {
@@ -39,5 +39,16 @@ class VehiculoController extends Controller
         ]);
 
         return redirect()->route('flota.index')->with('exito', '¡Vehículo registrado correctamente!');
+    }
+
+    public function toggleEstado(Vehiculo $vehiculo)
+    {
+        // Cambia de true a false, o de false a true
+        $vehiculo->update([
+            'activo' => !$vehiculo->activo
+        ]);
+
+        $mensaje = $vehiculo->activo ? '¡Unidad reactivada con éxito!' : '¡Unidad dada de baja correctamente!';
+        return redirect()->route('flota.index')->with('exito', $mensaje);
     }
 }

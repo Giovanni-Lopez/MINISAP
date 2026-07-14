@@ -13,5 +13,6 @@ class Vehiculo extends Model
     protected $fillable = [
         'sucursal',
         'placa',
+        'activo',
     ];
 }

@@ -124,9 +124,9 @@
 
     <!-- Script de Búsqueda y Paginación Automática -->
     <script>
-        // Convertimos la colección de PHP a un Array de JavaScript limpio
+        // Pasamos todos los vehículos incluyendo la columna 'activo' e 'id'
         const todosLosVehiculos = @json($vehiculos);
-        
+
         let vehiculosFiltrados = [...todosLosVehiculos];
         let paginaActual = 1;
         const limitePorPagina = 10;
@@ -147,7 +147,7 @@
             if (itemsPagina.length === 0) {
                 tabla.innerHTML = `
                     <tr>
-                        <td colspan="3" class="text-center py-8 text-gray-500">
+                        <td colspan="4" class="text-center py-8 text-gray-500">
                             <i class="fa-solid fa-circle-exclamation text-2xl mb-2 block"></i>
                             No se encontraron resultados.
                         </td>
@@ -159,16 +159,23 @@
             }
 
             itemsPagina.forEach(v => {
-                // Formatear Fecha
-                const fecha = new Date(v.created_at);
-                const fechaFormateada = fecha.toLocaleDateString('es-ES', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                }) + ' ' + fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
                 const fila = document.createElement('tr');
-                fila.className = "hover:bg-gray-900/50 transition";
+                fila.className = `hover:bg-gray-900/50 transition ${!v.activo ? 'opacity-60 bg-gray-950/20' : ''}`;
+
+                // Badge de Estado
+                const badgeEstado = v.activo 
+                    ? `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-circle text-[6px] mr-1 align-middle"></i> Activo</span>`
+                    : `<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-red-500/10 text-red-400 border border-red-500/20"><i class="fa-solid fa-circle text-[6px] mr-1 align-middle"></i> De Baja</span>`;
+
+                // Botón de dar de baja / reactivar
+                const btnAccion = v.activo
+                    ? `<button type="submit" class="text-xs bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-3 py-1 rounded-lg border border-red-500/20 hover:border-red-600 transition flex items-center gap-1.5 ml-auto">
+                        <i class="fa-solid fa-ban"></i> Dar de Baja
+                    </button>`
+                    : `<button type="submit" class="text-xs bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white px-3 py-1 rounded-lg border border-emerald-500/20 hover:border-emerald-600 transition flex items-center gap-1.5 ml-auto">
+                        <i class="fa-solid fa-check"></i> Reactivar
+                    </button>`;
+
                 fila.innerHTML = `
                     <td class="py-3 px-4 font-bold text-white">
                         <i class="fa-solid fa-location-dot text-red-500 mr-1.5"></i> ${v.sucursal}
@@ -178,21 +185,26 @@
                             <i class="fa-solid fa-truck mr-1.5"></i> ${v.placa}
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-xs font-mono text-gray-400">
-                        ${fechaFormateada}
+                    <td class="py-3 px-4">
+                        ${badgeEstado}
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <form action="/flota/${v.id}/toggle-estado" method="POST">
+                            <input type="hidden" name="_token" value="${document.querySelector('input[name="_token"]').value}">
+                            <input type="hidden" name="_method" value="PATCH">
+                            ${btnAccion}
+                        </form>
                     </td>
                 `;
                 tabla.appendChild(fila);
             });
 
-            // Actualizar información inferior del paginador
             const total = vehiculosFiltrados.length;
             const desde = indexInicial + 1;
             const hasta = Math.min(indexFinal, total);
             
             infoPaginas.textContent = `Mostrando ${desde} a ${hasta} de ${total} unidades`;
 
-            // Habilitar / Deshabilitar botones
             btnPrev.disabled = paginaActual === 1;
             btnNext.disabled = indexFinal >= total;
         }
@@ -205,11 +217,11 @@
                 return v.sucursal.toLowerCase().includes(query) || v.placa.toLowerCase().includes(query);
             });
 
-            paginaActual = 1; // Volver a la primera página tras una búsqueda
+            paginaActual = 1;
             renderizarTabla();
         });
 
-        // Eventos de botones de navegación
+        // Eventos de botones
         btnPrev.addEventListener('click', () => {
             if (paginaActual > 1) {
                 paginaActual--;
@@ -224,7 +236,6 @@
             }
         });
 
-        // Primera carga de la tabla
         renderizarTabla();
     </script>
 

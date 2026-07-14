@@ -89,4 +89,7 @@ Route::post('/incidencias/{id}/actualizar', [App\Http\Controllers\IncidenciaCont
 Route::middleware(['auth'])->group(function () {
     Route::get('/flota', [VehiculoController::class, 'index'])->name('flota.index');
     Route::post('/flota', [VehiculoController::class, 'store'])->name('flota.store');
+
+    // Ruta agregada para activar/desactivar unidades
+    Route::patch('/flota/{vehiculo}/toggle-estado', [VehiculoController::class, 'toggleEstado'])->name('flota.toggle');
 });
