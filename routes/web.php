@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IncidenciaController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\VehiculoController;
 
 // Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
 Route::get('/', function () {
@@ -83,3 +84,9 @@ Route::post('/km-diarios/store', function (\Illuminate\Http\Request $request) {
 })->name('km.store');
 
 Route::post('/incidencias/{id}/actualizar', [App\Http\Controllers\IncidenciaController::class, 'update'])->name('incidencias.update');
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/flota', [VehiculoController::class, 'index'])->name('flota.index');
+    Route::post('/flota', [VehiculoController::class, 'store'])->name('flota.store');
+});

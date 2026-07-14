@@ -47,7 +47,7 @@
                     <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
                         <i class="fa-solid fa-network-wired w-5 text-center"></i> Sucursales
                     </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
+                    <a href="/flota" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
                         <i class="fa-solid fa-truck-moving w-5 text-center"></i> Flota / Placas
                     </a>
                     <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">

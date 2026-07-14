@@ -1,24 +1,24 @@
 <aside class="hidden md:flex w-full md:w-64 bg-gray-800 border-r border-gray-700 flex-col justify-between shrink-0 min-h-[calc(100vh-4rem)]">
     <div class="p-4 space-y-6">
         <nav class="space-y-2">
-            <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-red-600 text-white shadow-lg shadow-red-900/30 transition-all">
-                <i class="fa-solid fa-clipboard-list text-lg w-5 text-center"></i>
-                <span>CheckList</span>
+            <!-- Botón CheckList -->
+            <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('muro') ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-clipboard-list w-5 text-center"></i> CheckList
             </a>
 
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700/50 hover:text-white transition-all">
-                <i class="fa-solid fa-network-wired text-lg w-5 text-center"></i>
-                <span>Sucursales</span>
+            <!-- Botón Sucursales -->
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('sucursales') ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-network-wired w-5 text-center"></i> Sucursales
             </a>
 
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700/50 hover:text-white transition-all">
-                <i class="fa-solid fa-truck-moving text-lg w-5 text-center"></i>
-                <span>Flota / Placas</span>
+            <!-- Botón Flota / Placas -->
+            <a href="{{ route('flota.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('flota.*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-truck-moving w-5 text-center"></i> Flota / Placas
             </a>
 
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700/50 hover:text-white transition-all">
-                <i class="fa-solid fa-clock-history text-lg w-5 text-center"></i>
-                <span>Historial</span>
+            <!-- Botón Historial -->
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('historial') ? 'bg-red-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-clock-history w-5 text-center"></i> Historial
             </a>
         </nav>
     </div>

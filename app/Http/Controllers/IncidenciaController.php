@@ -13,7 +13,13 @@ class IncidenciaController extends Controller
     // 1. Jalamos TODAS las incidencias reales ordenadas desde la base de datos (Railway)
     $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
 
-    $sucursalesConPlacas = config('flota.sucursales', []);
+    // Obtenemos todos los vehículos de la base de datos agrupados por su sucursal
+    $sucursalesConPlacas = \App\Models\Vehiculo::all()
+        ->groupBy('sucursal')
+        ->map(function ($items) {
+            return $items->pluck('placa')->toArray();
+        })
+        ->toArray();
 
     // 🌟 NUEVO: Calculamos los conteos para las 5 tarjetas usando los estados reales de la BD
     $pendientes = Incidencia::where('estado', 'Pendiente')->count();
