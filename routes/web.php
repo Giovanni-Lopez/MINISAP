@@ -86,3 +86,5 @@ Route::middleware(['auth'])->group(function () {
     // Ruta agregada para activar/desactivar unidades
     Route::patch('/flota/{vehiculo}/toggle-estado', [VehiculoController::class, 'toggleEstado'])->name('flota.toggle');
 });
+
+Route::put('/flota/update/{id}', [VehiculoController::class, 'update'])->name('flota.update');

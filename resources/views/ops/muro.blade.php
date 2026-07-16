@@ -20,15 +20,16 @@
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #00ff62a6; /* Rojo RENOSA para el hover */
+            background: #00ff62a6; /* Verde/Rojo RENOSA para el hover */
         }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans h-screen flex flex-col overflow-hidden m-0 p-0 relative">
     
+    <!-- Navbar -->
     <nav class="bg-gray-800 border-b border-red-600 px-4 py-4 shadow-xl flex justify-between items-center h-16 w-full z-50 shrink-0">
         <div class="flex items-center gap-3">
-            <button id="btn-toggle-menu" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none md:hidden block">
+            <button id="btn-toggle-menu" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none md:hidden block cursor-pointer">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <img src="https://lh3.googleusercontent.com/d/1AlBG27NmFnim8krD4_bb1aUWEdSLUlB3" alt="Logo RENOSA" class="h-10 w-auto object-contain">                        
@@ -36,51 +37,29 @@
         <span class="text-xs md:text-sm bg-gray-700 px-3 py-1 rounded-full text-gray-300 font-mono">Muro de Lamentos v1.0</span>
     </nav>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-gray-950/80 z-40 hidden transition-all duration-300 md:hidden">
-        <div class="w-72 bg-gray-800 h-full p-5 pt-20 flex flex-col justify-between border-r border-gray-700 shadow-2xl">
-            <div class="space-y-4">
-                <h3 class="text-xs uppercase tracking-wider text-gray-500 font-mono font-bold px-2">Navegación</h3>
-                <nav class="space-y-1">
-                    <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl bg-red-600 text-white">
-                        <i class="fa-solid fa-clipboard-list w-5 text-center"></i> CheckList
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
-                        <i class="fa-solid fa-network-wired w-5 text-center"></i> Sucursales
-                    </a>
-                    <a href="/flota" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
-                        <i class="fa-solid fa-truck-moving w-5 text-center"></i> Flota / Placas
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl text-gray-400 hover:bg-gray-700 hover:text-white">
-                        <i class="fa-solid fa-clock-history w-5 text-center"></i> Historial
-                    </a>
-                </nav>
-            </div>
-            
-            <div class="space-y-4">
-                <form action="{{ route('logout') }}" method="POST" class="w-full">
-                    @csrf
-                    <button type="submit" class="w-full text-gray-400 hover:text-white hover:bg-red-600/20 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 border border-transparent hover:border-red-500/20">
-                        <i class="fa-solid fa-right-from-bracket text-red-500"></i> Cerrar Sesión
-                    </button>
-                </form>
-                <div class="text-center text-[10px] text-gray-500 font-mono">RENOSA © 2026</div>
-            </div>
+    <!-- Contenedor Base -->
+    <div class="flex flex-1 w-full h-full overflow-hidden relative">
+
+        <!-- Sidebar (Corregido: bg-gray-900 sólido para evitar transparencias y transform dinámico) -->
+        <div id="sidebar-container" class="fixed md:relative inset-y-0 left-0 top-16 md:top-0 z-40 w-64 bg-gray-900 border-r border-gray-800 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 h-[calc(100vh-4rem)] md:h-full flex flex-col shrink-0">
+            @include('layouts.sidebar')
         </div>
-    </div>
 
-    <div class="flex flex-1 w-full h-full overflow-hidden">
+        <!-- Overlay de fondo para móviles -->
+        <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-30 md:hidden"></div>
 
-        @include('layouts.sidebar')
-
+        <!-- Main Content -->
         <main class="flex-1 bg-gray-900 w-full h-full overflow-y-auto overflow-x-hidden pb-12 custom-scrollbar">
             <div class="p-4 md:p-6 w-full max-w-[1600px] mx-auto">
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     
+                    <!-- KPIs Dashboard -->
                     <div class="lg:col-span-3 w-full overflow-x-auto">
                         @include('ops.dashboard-kpis')
                     </div>
                      
+                    <!-- Feed de Incidencias -->
                     <div class="lg:col-span-2 space-y-4">
                         <h2 class="text-base md:text-lg font-bold flex items-center gap-2 text-white mb-2">
                             <i class="fa-solid fa-list-timeline text-gray-400"></i> Feed Operativo Reciente
@@ -113,7 +92,6 @@
                                         $badgeColor = 'bg-emerald-950 text-emerald-400'; 
                                     }
 
-                                    // Determinar color de badge según el estado actual
                                     $estadoActual = $incidencia->estado ?? 'Pendiente';
                                     $estadoClass = 'bg-red-950 text-red-400 border border-red-800';
                                     if($estadoActual === 'En Revisión') {
@@ -135,8 +113,8 @@
                                             
                                             @if(!empty($incidencia->placa))
                                                 <div class="pt-1">
-                                                    <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                                        <i class="fa-solid fa-truck mr-1"></i> {{ $incidencia->placa }}
+                                                    <span class="px-2.5 py-1 text-xs font-mono font-bold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                        <i class="fa-solid fa-truck mr-1.5"></i> {{ $incidencia->placa }}
                                                     </span>
                                                 </div>
                                             @endif
@@ -160,7 +138,6 @@
                                         {{ $incidencia->descripcion }}
                                     </p>
 
-                                    <!-- Sección de Notas de Resolución / Bitácora -->
                                     @if(!empty($incidencia->comentarios))
                                         <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-2">
                                             <span class="text-[9px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
@@ -183,7 +160,7 @@
                                         
                                         <button type="button" 
                                             onclick="abrirModalGestion({{ json_encode($incidencia) }})"
-                                            class="px-3 py-1 bg-gray-900 border border-gray-700 hover:border-blue-500 hover:text-white text-gray-400 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all">
+                                            class="px-3 py-1 bg-gray-900 border border-gray-700 hover:border-blue-500 hover:text-white text-gray-400 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer">
                                             <i class="fa-solid fa-sliders text-[9px]"></i> Gestionar / Notas
                                         </button>
                                     </div>
@@ -203,6 +180,7 @@
 
     </div>
 
+    <!-- MODAL DE GESTIÓN -->
     <div id="modalGestion" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/80 backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative transform scale-95 transition-transform duration-300 mx-4">
             
@@ -214,7 +192,7 @@
                     </h3>
                     <p class="text-[11px] text-gray-500 mt-0.5" id="modalId">ID: #000</p>
                 </div>
-                <button onclick="cerrarModalGestion()" class="text-gray-400 hover:text-white transition-colors">
+                <button onclick="cerrarModalGestion()" class="text-gray-400 hover:text-white transition-colors cursor-pointer">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
@@ -238,14 +216,14 @@
 
                 <div>
                     <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1.5">Notas de Resolución / Bitácora</label>
-                    <textarea id="modalComentarios" name="comentarios" rows="3" placeholder="Ej. El mecánico ya revisó la unidad, requiere refacción de frenos..." class="w-full bg-gray-950 border border-gray-800 text-white rounded-xl p-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-gray-700 text-sm"></textarea>
+                    <textarea id="modalComentarios" name="comentarios" rows="3" placeholder="Ej. El mecánico ya revisó la unidad..." class="w-full bg-gray-950 border border-gray-800 text-white rounded-xl p-3 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all placeholder:text-gray-700 text-sm"></textarea>
                 </div>
 
                 <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="cerrarModalGestion()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold rounded-xl transition-all">
+                    <button type="button" onclick="cerrarModalGestion()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-bold rounded-xl transition-all cursor-pointer">
                         Cancelar
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-red-500/20">
+                    <button type="submit" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-red-500/20 cursor-pointer">
                         Guardar Cambios
                     </button>
                 </div>
@@ -253,23 +231,29 @@
         </div>
     </div>
 
+    <!-- SCRIPTS DE CONTROL -->
     <script>
-        // Lógica del Menú Desplegable Móvil
+        // Lógica del Menú Desplegable Móvil (Corregida e Integrada)
         const btnToggleMenu = document.getElementById('btn-toggle-menu');
-        const mobileMenu = document.getElementById('mobile-menu');
+        const sidebar = document.getElementById('sidebar-container');
+        const overlay = document.getElementById('sidebar-overlay');
 
-        if(btnToggleMenu && mobileMenu) {
+        function toggleMenuMovil() {
+            if (sidebar && overlay) {
+                sidebar.classList.toggle('-translate-x-full');
+                overlay.classList.toggle('hidden');
+            }
+        }
+
+        if (btnToggleMenu) {
             btnToggleMenu.addEventListener('click', function(e) {
                 e.stopPropagation();
-                mobileMenu.classList.toggle('hidden');
+                toggleMenuMovil();
             });
+        }
 
-            // Cerrar menú si se hace click fuera de él
-            mobileMenu.addEventListener('click', function(e) {
-                if(e.target === mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
+        if (overlay) {
+            overlay.addEventListener('click', toggleMenuMovil);
         }
 
         // Lógica de Sucursales y Placas Dinámicas
@@ -297,7 +281,7 @@
             });
         }
 
-        // Lógica de apertura/cierre del modal
+        // Lógica del Modal
         function abrirModalGestion(incidencia) {
             const modal = document.getElementById('modalGestion');
             
@@ -308,10 +292,8 @@
             document.getElementById('modalEstado').value = incidencia.estado || 'Pendiente';
             document.getElementById('modalComentarios').value = incidencia.comentarios || '';
 
-            // Asignar ruta dinámica de formulario
             document.getElementById('formActualizar').action = `/incidencias/${incidencia.id}/actualizar`;
 
-            // Mostrar modal
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.firstElementChild.classList.remove('scale-95');
@@ -328,7 +310,6 @@
             }, 200);
         }
 
-        // Cerrar si se da click fuera del contenedor
         document.getElementById('modalGestion').addEventListener('click', function(e) {
             if (e.target === this) cerrarModalGestion();
         });
