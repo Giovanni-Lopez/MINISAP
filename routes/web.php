@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IncidenciaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\VehiculoController;
+use App\Http\Controllers\CombustibleController;
 
 // Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
 Route::get('/', function () {
@@ -59,19 +60,11 @@ Route::post('/login', function (\Illuminate\Http\Request $request) {
     ])->onlyInput('email');
 });
 
-// Rutas para el Registro de Combustible
-Route::get('/combustible', function () {
-    // Heredamos los mismos datos de flota que ya tienes en tu controlador
-    $sucursalesConPlacas = config('flota.sucursales', []);
-    $usuariosPorSucursal = config('flota.usuarios', []); // <-- ¡Leído directamente desde el archivo flota!
-    return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
-})->middleware('auth');
-
-Route::post('/combustible/store', function (\Illuminate\Http\Request $request) {
-    // Por ahora redirecciona con éxito para simular el guardado en tu entrega
-    return redirect()->back()->with('exito', '¡Registro de Combustible guardado con éxito!');
-})->name('combustible.store');
-
+Route::middleware(['auth'])->group(function () {
+    // Rutas dinámicas para Gestión de Combustible
+    Route::get('/combustible', [CombustibleController::class, 'index'])->name('combustible.index');
+    Route::post('/combustible/store', [CombustibleController::class, 'store'])->name('combustible.store');
+});
 
 // Rutas para el Registro de Kilometraje Diario
 Route::get('/km-diarios', function () {

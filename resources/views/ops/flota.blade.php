@@ -56,9 +56,18 @@
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Número de Placa</label>
-                                <input type="text" name="placa" placeholder="Ej: M-966030" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 text-white placeholder-gray-600">
+                            <!-- Input de Placa -->
+                            <div class="mb-4">
+                                <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Número de Placa</label>
+                                <input type="text" name="placa" value="{{ old('placa') }}" placeholder="Ej: M-966030" required 
+                                    class="w-full bg-gray-800 border @error('placa') border-red-500 @else border-gray-700 @enderror rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner uppercase">
+                                
+                                <!-- MENSAJE DE ERROR DINÁMICO -->
+                                @error('placa')
+                                    <span class="text-xs text-red-500 font-semibold mt-1 block">
+                                        <i class="fa-solid fa-triangle-exclamation mr-1"></i> {{ $message }}
+                                    </span>
+                                @enderror
                             </div>
 
                             <button type="submit" class="w-full bg-red-600 hover:bg-red-700 transition text-white text-sm font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2">
