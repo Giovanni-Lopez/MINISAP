@@ -3,48 +3,44 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Incidencia; // <--- IMPORTAMOS TU MODELO REAL
+use App\Models\Incidencia; 
 use Carbon\Carbon;
 
 class IncidenciaController extends Controller
 {
     public function index()
-    {
-        // 1. Jalamos TODAS las incidencias reales ordenadas desde la base de datos (Railway)
-        $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
+        {
+            // 1. Traemos los datos de tus tablas reales para el formulario dinámico
+            $nombresSucursales = \App\Models\Sucursal::pluck('nombre')->toArray();
+            $placasVehiculos = \App\Models\Vehiculo::pluck('placa')->toArray();
 
-        // Obtenemos ÚNICAMENTE los vehículos activos de la base de datos agrupados por su sucursal
-        $sucursalesConPlacas = \App\Models\Vehiculo::where('activo', true) // <-- Filtro clave agregado
-            ->get()
-            ->groupBy('sucursal')
-            ->map(function ($items) {
-                return $items->pluck('placa')->toArray();
-            })
-            ->toArray();
+            $sucursalesConPlacas = [];
+            foreach ($nombresSucursales as $sucursal) {
+                $sucursalesConPlacas[$sucursal] = $placasVehiculos;
+            }
 
-        // Calculamos los conteos para las 5 tarjetas usando los estados reales de la BD
-        $pendientes = Incidencia::where('estado', 'Pendiente')->count();
-        $enProceso = Incidencia::where('estado', 'En Revisión')->count(); // Si tu "tercero" guarda 'En Revisión' o 'Proceso'
-        $finalizados = Incidencia::where('estado', 'Resuelto')->count();
+            // 2. FILTRO DE ROLES ESTRICTO
+            if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
+                // El usuario común SOLO recibe lo necesario para usar el formulario
+                return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
+            }
 
-        // Contador de alertas de combustible (por ejemplo, incidencias con urgencia 'Alta' o 'Crítica')
-        $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
+            // 3. Si es Administrador, calculamos el resto de la data global
+            $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
+            $pendientes = Incidencia::where('estado', 'Pendiente')->count();
+            $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
+            $finalizados = Incidencia::where('estado', 'Resuelto')->count();
+            $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
 
-        // 2. Si el usuario es de Sucursal, cargamos su plantilla exclusiva
-        if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
-            return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
+            return view('ops.muro', compact(
+                'incidencias', 
+                'sucursalesConPlacas', 
+                'pendientes', 
+                'enProceso', 
+                'finalizados', 
+                'alertasCombustible'
+            ));
         }
-
-        // 3. Si es Administrador, se carga el muro completo enviando también los contadores
-        return view('ops.muro', compact(
-            'incidencias', 
-            'sucursalesConPlacas', 
-            'pendientes', 
-            'enProceso', 
-            'finalizados', 
-            'alertasCombustible'
-        ));
-    }
 
     public function store(Request $request)
     {
@@ -62,7 +58,7 @@ class IncidenciaController extends Controller
             'urgencia' => $request->urgencia,
             'descripcion' => $request->descripcion,
             'estado' => 'Pendiente', // Estado por defecto
-            'imagen_evidencia' => null, // De momento null, luego puedes procesar archivos si lo requieres
+            'imagen_evidencia' => null, 
         ]);
 
         // 3. Redireccionamos con el mensaje de éxito
@@ -79,8 +75,6 @@ class IncidenciaController extends Controller
         $incidencia = Incidencia::findOrFail($id);
         $incidencia->estado = $request->estado;
         
-        // Si tu tabla de incidencias ya tiene un campo para notas, comentarios o bitácora, lo guardamos.
-        // Si no lo tiene, podemos guardar temporalmente el comentario o puedes crear la columna en la BD.
         if (\Schema::hasColumn('incidencias', 'comentarios')) {
             $incidencia->comentarios = $request->comentarios;
         }
@@ -89,6 +83,4 @@ class IncidenciaController extends Controller
 
         return redirect()->back()->with('success', '¡Registro actualizado con éxito!');
     }
-
-
 }

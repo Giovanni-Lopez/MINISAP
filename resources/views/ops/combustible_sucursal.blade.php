@@ -18,7 +18,8 @@
             <p class="text-xs text-gray-400 mt-1">Llena con precisión los datos del ticket de carga de combustible de la unidad.</p>
         </div>
 
-        <form action="{{ route('combustible.store') }}" method="POST" class="space-y-5">
+        <!-- Agregamos un ID al formulario para controlarlo con JavaScript -->
+        <form id="combustible-form" action="{{ route('combustible.store') }}" method="POST" class="space-y-5">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -133,6 +134,7 @@
     const datosFlota = @json($sucursalesConPlacas);
     const datosUsuarios = @json($usuariosPorSucursal);
 
+    const formulario = document.getElementById('combustible-form');
     const sucursalSelect = document.getElementById('sucursal-select');
     const placaSelect = document.getElementById('placa-select');
     const placaManualInput = document.getElementById('placa-manual-input');
@@ -184,6 +186,17 @@
             placaManualInput.classList.add('hidden');
             placaManualInput.removeAttribute('required');
             placaManualInput.value = '';
+        }
+    });
+
+    // CORRECCIÓN CLAVE: Interceptamos el envío para mandar la placa manual si se seleccionó "OTRO"
+    formulario.addEventListener('submit', function(e) {
+        if (placaSelect.value === 'OTRO') {
+            const valorManual = placaManualInput.value.trim().toUpperCase();
+            if (valorManual !== '') {
+                // Cambiamos temporalmente el valor del select para que viaje el texto escrito a mano
+                placaSelect.options[placaSelect.selectedIndex].value = valorManual;
+            }
         }
     });
 

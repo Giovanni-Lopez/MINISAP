@@ -10,22 +10,29 @@ class CombustibleController extends Controller
 {
     public function index()
     {
-        $sucursalesConPlacas = Vehiculo::where('activo', true)
+        // 1. Traemos de forma dinámica las sucursales y las placas reales de la BD
+        $nombresSucursales = \App\Models\Sucursal::pluck('nombre')->toArray();
+        $placasVehiculos = \App\Models\Vehiculo::pluck('placa')->toArray();
+
+        // 2. Mapeamos las sucursales con todas las placas reales
+        $sucursalesConPlacas = [];
+        foreach ($nombresSucursales as $sucursal) {
+            $sucursalesConPlacas[$sucursal] = $placasVehiculos;
+        }
+
+        // 3. ¡CONECTADO CON TU MODELO! Jalamos los conductores activos uniendo Nombres y Apellidos
+        $conductoresReales = \App\Models\Conductor::where('activo', true)
             ->get()
-            ->groupBy('sucursal')
-            ->map(function ($items) {
-                return $items->pluck('placa')->toArray();
+            ->map(function ($conductor) {
+                return trim($conductor->nombres . ' ' . $conductor->apellidos);
             })
             ->toArray();
 
-        $usuariosPorSucursal = [
-            'Distribucion' => ['Piloto Distribucion 1', 'Piloto Distribucion 2'],
-            'Operaciones' => ['Piloto Operaciones 1', 'Piloto Operaciones 2'],
-            'Suc. Ilopango' => ['Piloto Ilopango 1', 'Piloto Ilopango 2'],
-            'Suc. Lourdes' => ['Piloto Lourdes 1', 'Piloto Lourdes 2'],
-            'Suc. San Salvador' => ['Piloto San Salvador 1', 'Piloto San Salvador 2'],
-            'Suc. Santa Ana' => ['Piloto Santa Ana 1', 'Piloto Santa Ana 2'],
-        ];
+        // 4. Mapeamos para que cualquier sucursal tenga acceso a la lista real de conductores
+        $usuariosPorSucursal = [];
+        foreach ($nombresSucursales as $sucursal) {
+            $usuariosPorSucursal[$sucursal] = $conductoresReales;
+        }
 
         return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
     }
@@ -36,7 +43,7 @@ class CombustibleController extends Controller
         $request->validate([
             'sucursal' => 'required|string',
             'fecha' => 'required|date',
-            'no_vale' => 'required|integer|min:1', // <-- Validado como no_vale
+            'no_vale' => 'required|integer|min:1', 
             'placa' => 'required|string',
             'usuario' => 'required|string',
             'precio_galon' => 'required|numeric|min:0.01',
@@ -52,7 +59,7 @@ class CombustibleController extends Controller
         RegistroCombustible::create([
             'sucursal' => $request->sucursal,
             'fecha' => $request->fecha,
-            'no_vale' => $request->no_vale, // <-- Mapeado correctamente
+            'no_vale' => $request->no_vale, 
             'placa' => $request->placa,
             'usuario' => $request->usuario,
             'precio_galon' => $request->precio_galon,
