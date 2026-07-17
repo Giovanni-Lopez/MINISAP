@@ -5,6 +5,7 @@ use App\Http\Controllers\IncidenciaController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\CombustibleController;
+use App\Http\Controllers\ConductorController;
 
 // Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
 Route::get('/', function () {
@@ -87,6 +88,15 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/flota/{vehiculo}/toggle-estado', [VehiculoController::class, 'toggleEstado'])->name('flota.toggle');
 });
 
+//para actualizar registro de vehiculo
 Route::put('/flota/update/{id}', [VehiculoController::class, 'update'])->name('flota.update');
 
+//para eliminar de vehiculo
 Route::delete('/flota/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])->name('flota.destroy');
+
+//para Control de Usuarios / Motoristas
+Route::get('/usuarios', [ConductorController::class, 'index'])->name('usuarios.index');
+Route::post('/usuarios/registrar', [ConductorController::class, 'store'])->name('usuarios.store');
+Route::put('/usuarios/{id}', [ConductorController::class, 'update'])->name('usuarios.update');
+Route::delete('/usuarios/{id}', [ConductorController::class, 'destroy'])->name('usuarios.destroy');
+
