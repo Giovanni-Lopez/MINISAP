@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -6,32 +7,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Asignacion extends Model
 {
-    protected $table = 'asignaciones';
+    // Forzamos el nombre de la tabla si tu migración se llama asignaciones
+    protected $table = 'asignaciones'; 
 
     protected $fillable = [
         'vehiculo_id',
-        'user_id',
-        'sucursal',
-        'activo',
+        'conductor_id',
         'fecha_asignacion',
-        'fecha_devolucion'
+        'estado_vehiculo',
+        'observaciones',
+        'activo'
     ];
 
-    protected $casts = [
-        'fecha_asignacion' => 'date',
-        'fecha_devolucion' => 'date',
-        'activo' => 'boolean'
-    ];
-
-    // Pertenece a un Vehículo
+    // Relación: Una asignación pertenece a un Vehículo
     public function vehiculo(): BelongsTo
     {
-        return $this->belongsTo(Vehiculo::class);
+        return $this->belongsTo(Vehiculo::class, 'vehiculo_id');
     }
 
-    // Pertenece a un Usuario (Chofer/Responsable)
-    public function usuario(): BelongsTo
+    // Relación: Una asignación pertenece a un Conductor
+    public function conductor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Conductor::class, 'conductor_id');
     }
 }

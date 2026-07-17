@@ -5,17 +5,29 @@
                 <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i> CheckList
             </a>
 
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('sucursales*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-network-wired w-5 text-center text-lg"></i> Sucursales
+            <a href="{{ route('sucursales.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('sucursales*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-shop"></i>
+                <span>Sucursales</span>
             </a>
 
             <a href="{{ route('flota.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('flota.*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-truck-moving w-5 text-center text-lg"></i> Flota / Placas
+                <i class="fa-solid fa-truck-moving w-5 text-center text-lg"></i> Flota
+            </a>
+
+            <a href="{{ route('asignaciones.index') }}" 
+            class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 
+                    {{ request()->routeIs('asignaciones.*') 
+                        ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' 
+                        : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100' }}">
+                <div class="flex items-center justify-center w-5 h-5">
+                    <i class="fa-solid fa-key text-base"></i>
+                </div>
+                <span>Asignación de Flota</span>
             </a>
 
             <a href="{{ route('usuarios.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                 <i class="fa-solid fa-users-gear"></i>
-                <span>Usuarios / Personal</span>
+                <span>Personal</span>
             </a>
 
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">

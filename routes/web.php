@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\CombustibleController;
 use App\Http\Controllers\ConductorController;
+use App\Http\Controllers\SucursalController;
+use App\Http\Controllers\AsignacionFlotaController;
 
 // Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
 Route::get('/', function () {
@@ -100,3 +102,14 @@ Route::post('/usuarios/registrar', [ConductorController::class, 'store'])->name(
 Route::put('/usuarios/{id}', [ConductorController::class, 'update'])->name('usuarios.update');
 Route::delete('/usuarios/{id}', [ConductorController::class, 'destroy'])->name('usuarios.destroy');
 
+
+// Rutas para Control de Sucursales
+Route::get('/sucursales', [SucursalController::class, 'index'])->name('sucursales.index');
+Route::post('/sucursales/registrar', [SucursalController::class, 'store'])->name('sucursales.store');
+Route::put('/sucursales/{id}', [SucursalController::class, 'update'])->name('sucursales.update');
+Route::delete('/sucursales/{id}', [SucursalController::class, 'destroy'])->name('sucursales.destroy');
+
+// Rutas para el control de asignaciones
+Route::get('/asignaciones-flota', [AsignacionFlotaController::class, 'index'])->name('asignaciones.index');
+Route::post('/asignaciones-flota', [AsignacionFlotaController::class, 'store'])->name('asignaciones.store');
+Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::class, 'liberar'])->name('asignaciones.liberar');

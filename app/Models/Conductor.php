@@ -26,4 +26,9 @@ class Conductor extends Model
         'vence' => 'date',
         'activo' => 'boolean'
     ];
+
+    public function asignaciones(): HasMany
+    {
+        return $this->hasMany(Asignacion::class, 'conductor_id');
+    }
 }
