@@ -112,4 +112,10 @@ class VehiculoController extends Controller
 
         return redirect()->back()->with('exito', '¡La unidad fue actualizada con éxito!');
     }
+    public function destroy(Vehiculo $vehiculo)
+    {
+        $vehiculo->delete();
+        return redirect()->back()->with('exito', '¡Unidad eliminada permanentemente del sistema!');
+    }
+
 }

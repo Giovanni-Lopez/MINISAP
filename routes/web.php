@@ -88,3 +88,5 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::put('/flota/update/{id}', [VehiculoController::class, 'update'])->name('flota.update');
+
+Route::delete('/flota/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])->name('flota.destroy');

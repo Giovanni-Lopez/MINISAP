@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RENOSA - Gestión de Flota</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CORREGIDO: Cambiado class="stylesheet" por rel="stylesheet" -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans h-screen flex flex-col overflow-hidden m-0 p-0 relative">
@@ -30,9 +31,15 @@
         <main class="flex-1 bg-gray-900 w-full h-full overflow-y-auto overflow-x-hidden pb-12">
             <div class="p-4 md:p-6 w-full max-w-[1600px] mx-auto">
                 
-                <h2 class="text-xl md:text-2xl font-black text-white mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-truck-moving text-red-500"></i> Control y Registro de Flotas
-                </h2>
+                <!-- Encabezado con Botón de Registro -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <h2 class="text-xl md:text-2xl font-black text-white flex items-center gap-2">  
+                        <i class="fa-solid fa-truck-moving text-red-500"></i> Control y Registro de Flota
+                    </h2>
+                    <button onclick="abrirModalRegistrar()" class="bg-red-600 hover:bg-red-700 transition text-white text-xs md:text-sm font-bold py-2 px-4 rounded-lg flex items-center gap-2 shadow-lg shadow-red-900/20 self-start sm:self-auto cursor-pointer">
+                        <i class="fa-solid fa-plus"></i> Registrar Nueva Unidad
+                    </button>
+                </div>
 
                 @if(session('exito'))
                     <div class="bg-emerald-950 border border-emerald-500 text-emerald-300 p-4 rounded-lg text-sm flex items-center gap-2 mb-6">
@@ -53,93 +60,10 @@
                     </div>
                 @endif
 
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                <!-- Contenedor Principal (Full Width para la Tabla) -->
+                <div class="grid grid-cols-1 gap-6 items-start">
                     
-                    <div class="xl:col-span-1 bg-gray-800 p-5 rounded-xl border border-gray-700/50 shadow-md h-fit">
-                        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-plus-circle text-red-500"></i> Registrar Unidad
-                        </h3>
-                        
-                        <form action="{{ route('flota.store') }}" method="POST" class="space-y-4">
-                            @csrf
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                
-                                <div class="col-span-2">
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Placa / Dominio *</label>
-                                    <input type="text" name="placa" value="{{ old('placa') }}" placeholder="Ej: M-966030" required 
-                                        class="w-full bg-gray-900 border @error('placa') border-red-500 @else border-gray-700 @enderror rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase">
-                                    @error('placa')
-                                        <span class="text-[10px] text-red-500 mt-0.5 block">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Año *</label>
-                                    <input type="number" name="anio" min="1990" max="{{ date('Y')+1 }}" required placeholder="2024" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Marca *</label>
-                                    <input type="text" name="marca" required placeholder="Toyota, Hino..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Modelo *</label>
-                                    <input type="text" name="modelo" required placeholder="Hilux, Dutro..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Capacidad (Kg/L) *</label>
-                                    <input type="text" name="capacidad" required placeholder="5 Ton, 1200 L..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Tipo *</label>
-                                    <input type="text" name="tipo" required placeholder="Camión, PickUp..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Clase *</label>
-                                    <input type="text" name="clase" required placeholder="Pesado, Liviano..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">En Calidad de *</label>
-                                    <select name="en_calidad" required class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-red-500 text-white">
-                                        <option value="Propietario">Propietario</option>
-                                        <option value="A Plazos">A Plazos</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">Color *</label>
-                                    <input type="text" name="color" required placeholder="Blanco, Rojo..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                                </div>
-
-                                <div class="col-span-2">
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">N° Chasis *</label>
-                                    <input type="text" name="n_chasis" required placeholder="Número de Chasis..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
-                                </div>
-
-                                <div class="col-span-2">
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">N° Motor *</label>
-                                    <input type="text" name="n_motor" required placeholder="Número de Motor..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
-                                </div>
-
-                                <div class="col-span-2">
-                                    <label class="block text-[10px] font-mono uppercase tracking-wider text-gray-400 mb-1">N° VIN *</label>
-                                    <input type="text" name="n_vin" required placeholder="Número VIN..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
-                                </div>
-                            </div>
-
-                            <button type="submit" class="w-full bg-red-600 hover:bg-red-700 transition text-white text-sm font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 mt-2">
-                                <i class="fa-solid fa-save"></i> Guardar Unidad
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="xl:col-span-2 bg-gray-800 p-5 rounded-xl border border-gray-700/50 shadow-md flex flex-col justify-between">
+                    <div class="bg-gray-800 p-5 rounded-xl border border-gray-700/50 shadow-md flex flex-col justify-between w-full">
                         <div>
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
                                 <h3 class="text-base font-bold text-white flex items-center gap-2">
@@ -155,18 +79,19 @@
                             </div>
 
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm border-collapse">
+                                <table class="w-full text-left text-sm border-collapse table-fixed">
                                     <thead>
                                         <tr class="border-b border-gray-700 text-xs font-mono text-gray-400 uppercase">
-                                            <th class="py-3 px-4">Placa</th>
-                                            <th class="py-3 px-4">Ficha Técnica</th>
-                                            <th class="py-3 px-4">Números de Serie</th>
-                                            <th class="py-3 px-4">Estado</th>
-                                            <th class="py-3 px-4 text-right">Acciones</th>
+                                            <th class="py-3 px-4 w-[15%]">Placa</th>
+                                            <th class="py-3 px-4 w-[30%]">Ficha Técnica</th>
+                                            <th class="py-3 px-4 w-[20%]">Números de Serie</th>
+                                            <th class="py-3 px-4 w-[12%]">Estado</th>
+                                            <!-- Cambiado de text-right a text-left para acercar las acciones -->
+                                            <th class="py-3 px-4 text-left w-[23%]">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabla-vehiculos" class="divide-y divide-gray-700/50">
-                                        </tbody>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -192,6 +117,89 @@
 
     </div>
 
+    <!-- MODAL 1: REGISTRAR UNIDAD -->
+    <div id="modal-registrar" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto">
+        <div class="bg-gray-900 border border-gray-800 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative my-8">
+            
+            <button onclick="cerrarModalRegistrar()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition cursor-pointer">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h3 class="text-lg font-black text-white flex items-center gap-2 mb-4">
+                <i class="fa-solid fa-plus-circle text-red-500"></i> Registrar Nueva Unidad
+            </h3>
+
+            <form action="{{ route('flota.store') }}" method="POST">
+                @csrf
+                <div class="grid grid-cols-2 gap-3 max-h-[65vh] overflow-y-auto pr-1">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Placa *</label>
+                        <input type="text" name="placa" value="{{ old('placa') }}" placeholder="Ej: M-966030" required 
+                            class="w-full bg-gray-800 border @error('placa') border-red-500 @else border-gray-700 @enderror rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Año *</label>
+                        <input type="number" name="anio" min="1990" max="{{ date('Y')+1 }}" required placeholder="2024" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Marca *</label>
+                        <input type="text" name="marca" required placeholder="Toyota, Hino..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Modelo *</label>
+                        <input type="text" name="modelo" required placeholder="Hilux, Dutro..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Capacidad *</label>
+                        <input type="text" name="capacidad" required placeholder="5 Ton, 1200 L..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Tipo *</label>
+                        <input type="text" name="tipo" required placeholder="Camión, PickUp..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Clase *</label>
+                        <input type="text" name="clase" required placeholder="Pesado, Liviano..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">En Calidad de *</label>
+                        <select name="en_calidad" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            <option value="Propietario">Propietario</option>
+                            <option value="A Plazos">A Plazos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Color *</label>
+                        <input type="text" name="color" required placeholder="Blanco, Rojo..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">N° Chasis *</label>
+                        <input type="text" name="n_chasis" required placeholder="Número de Chasis..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">N° Motor *</label>
+                        <input type="text" name="n_motor" required placeholder="Número de Motor..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">N° VIN *</label>
+                        <input type="text" name="n_vin" required placeholder="Número VIN..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase font-mono">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 pt-4 border-t border-gray-800 mt-4">
+                    <button type="button" onclick="cerrarModalRegistrar()" class="w-1/2 bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-2.5 rounded-xl transition text-sm">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="w-1/2 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-red-900/30">
+                        <i class="fa-solid fa-save"></i> Guardar Unidad
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: EDICIÓN DE UNIDAD -->
     <div id="modal-editar" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto">
         <div class="bg-gray-900 border border-gray-800 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative my-8">
             
@@ -207,7 +215,7 @@
                 @csrf
                 @method('PUT')
 
-                <div class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1 custom-scrollbar">
+                <div class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
                     <div class="col-span-2">
                         <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Número de Placa *</label>
                         <input type="text" name="placa" id="modal-placa-input" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase">
@@ -287,6 +295,13 @@
         const btnPrev = document.getElementById('btn-prev');
         const btnNext = document.getElementById('btn-next');
 
+        function abrirModalRegistrar() {
+            document.getElementById('modal-registrar').classList.remove('hidden');
+        }
+        function cerrarModalRegistrar() {
+            document.getElementById('modal-registrar').classList.add('hidden');
+        }
+
         function renderizarTabla() {
             const indexInicial = (paginaActual - 1) * limitePorPagina;
             const indexFinal = indexInicial + limitePorPagina;
@@ -330,7 +345,16 @@
                     <i class="fa-solid fa-pen-to-square text-[9px]"></i> Editar
                 </button>`;
 
-                // Columna 2: Ficha Técnica Simplificada
+                const btnEliminar = `
+                    <form action="/flota/${v.id}" method="POST" onsubmit="return confirm('¿Estás completamente seguro de eliminar la placa ${v.placa}? Esta acción borrará el registro permanentemente de la base de datos.');">
+                        <input type="hidden" name="_token" value="${document.querySelector('input[name="_token"]').value}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="text-[11px] bg-red-950/40 hover:bg-red-700 text-red-500 hover:text-white px-2.5 py-1 rounded-lg border border-red-900/30 hover:border-red-600 transition flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-trash text-[9px]"></i> Eliminar
+                        </button>
+                    </form>
+                `;
+
                 const detallesFicha = `
                     <div class="text-[11px] space-y-0.5 py-1">
                         <span class="text-gray-300 font-semibold">${v.marca || ''} ${v.modelo || ''} (${v.anio || ''})</span>
@@ -342,7 +366,6 @@
                     </div>
                 `;
 
-                // Columna 3: Números de Serie e Identificadores Técnicos
                 const seriesFicha = `
                     <div class="text-[10px] font-mono text-gray-400 space-y-0.5">
                         <div><span class="text-gray-500">Chasis:</span> ${v.n_chasis || 'S/N'}</div>
@@ -366,14 +389,19 @@
                     <td class="py-3 px-4">
                         ${badgeEstado}
                     </td>
+                    <!-- Cambiado de justify-end a justify-start para pegar los botones al contenido -->
                     <td class="py-3 px-4">
-                        <div class="flex items-center justify-end gap-2">
+                        <div class="flex items-center justify-start gap-1.5 flex-wrap">
                             ${btnEditar}
-                            <form action="/flota/${v.id}/toggle-estado" method="POST">
+                            
+                            ${btnEliminar}
+
+                            <form action="/flota/${v.id}/toggle-estado" method="POST" class="inline">
                                 <input type="hidden" name="_token" value="${document.querySelector('input[name="_token"]').value}">
                                 <input type="hidden" name="_method" value="PATCH">
                                 ${btnAccion}
                             </form>
+
                         </div>
                     </td>
                 `;
@@ -402,14 +430,11 @@
             document.getElementById('modal-tipo-input').value = v.tipo || '';
             document.getElementById('modal-clase-input').value = v.clase || '';
 
-            // --- CORRECCIÓN DE MAPEADO PARA "EN CALIDAD DE" ---
             let calidad = v.en_calidad || 'Propietario';
-            // Si viene como "Propiedad" o "Propio" de la base de datos, lo asignamos a "Propietario"
             if (calidad === 'Propietario' || calidad === 'Propio') {
                 calidad = 'Propietario';
             }
             document.getElementById('modal-calidad-select').value = calidad;
-            // --------------------------------------------------
 
             document.getElementById('modal-color-input').value = v.color || '';
             document.getElementById('modal-chasis-input').value = v.n_chasis || '';
@@ -423,7 +448,6 @@
             document.getElementById('modal-editar').classList.add('hidden');
         }
 
-        // Buscador Inteligente multi-criterio técnico
         buscador.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             
