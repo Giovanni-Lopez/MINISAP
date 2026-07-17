@@ -279,7 +279,7 @@
 
         let vehiculosFiltrados = [...todosLosVehiculos];
         let paginaActual = 1;
-        const limitePorPagina = 10;
+        const limitePorPagina = 5;
 
         const buscador = document.getElementById('buscador');
         const tabla = document.getElementById('tabla-vehiculos');
@@ -318,10 +318,10 @@
 
                 const btnAccion = v.activo
                     ? `<button type="submit" class="text-[11px] bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-2.5 py-1 rounded-lg border border-red-500/20 transition flex items-center gap-1 cursor-pointer">
-                        <i class="fa-solid fa-ban text-[9px]"></i> Baja
+                        <i class="fa-solid fa-ban text-[9px]"></i> Invalidar
                     </button>`
                     : `<button type="submit" class="text-[11px] bg-emerald-600/10 hover:bg-emerald-600 text-emerald-400 hover:text-white px-2.5 py-1 rounded-lg border border-emerald-500/20 transition flex items-center gap-1 cursor-pointer">
-                        <i class="fa-solid fa-check text-[9px]"></i> Alta
+                        <i class="fa-solid fa-check text-[9px]"></i> Activar
                     </button>`;
 
                 const vehiculoJson = JSON.stringify(v).replace(/'/g, "\\'");
@@ -337,7 +337,7 @@
                         <div class="text-gray-500 font-mono text-[10px] flex gap-2 flex-wrap">
                             <span>Tipo: ${v.tipo || 'S/T'}</span> | 
                             <span>Clase: ${v.clase || 'S/C'}</span> | 
-                            <span>Calidad: ${v.en_calidad || 'Propio'}</span>
+                            <span>Calidad: ${v.en_calidad || 'Propietario'}</span>
                         </div>
                     </div>
                 `;
@@ -401,7 +401,16 @@
             document.getElementById('modal-capacidad-input').value = v.capacidad || '';
             document.getElementById('modal-tipo-input').value = v.tipo || '';
             document.getElementById('modal-clase-input').value = v.clase || '';
-            document.getElementById('modal-calidad-select').value = v.en_calidad || 'Propiedad';
+
+            // --- CORRECCIÓN DE MAPEADO PARA "EN CALIDAD DE" ---
+            let calidad = v.en_calidad || 'Propietario';
+            // Si viene como "Propiedad" o "Propio" de la base de datos, lo asignamos a "Propietario"
+            if (calidad === 'Propietario' || calidad === 'Propio') {
+                calidad = 'Propietario';
+            }
+            document.getElementById('modal-calidad-select').value = calidad;
+            // --------------------------------------------------
+
             document.getElementById('modal-color-input').value = v.color || '';
             document.getElementById('modal-chasis-input').value = v.n_chasis || '';
             document.getElementById('modal-motor-input').value = v.n_motor || '';

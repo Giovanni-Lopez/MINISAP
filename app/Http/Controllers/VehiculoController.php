@@ -85,7 +85,7 @@ class VehiculoController extends Controller
             'capacidad'  => 'required|string',
             'tipo'       => 'required|string',
             'clase'      => 'required|string',
-            'en_calidad' => 'required|string|in:Propio,Rentado,Subcontratado',
+            'en_calidad' => 'required|string|in:Propietario,A Plazos',
             'color'      => 'required|string',
             'n_chasis'   => 'required|string',
             'n_motor'    => 'required|string',
