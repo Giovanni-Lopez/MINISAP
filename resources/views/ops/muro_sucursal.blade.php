@@ -70,16 +70,30 @@
 
 @push('scripts')
 <script>
-    const datosFlota = @json($sucursalesConPlacas);
-    const sucursalSelect = document.getElementById('sucursal-select');
-    const placaSelect = document.getElementById('placa-select');
+    document.addEventListener('DOMContentLoaded', () => {
+        const datosFlota = @json($sucursalesConPlacas);
+        const sucursalSelect = document.getElementById('sucursal-select');
+        const placaSelect = document.getElementById('placa-select');
 
-    if (sucursalSelect && placaSelect) {
-        sucursalSelect.addEventListener('change', function() {
-            const sucursalSeleccionada = this.value;
-            placaSelect.innerHTML = '<option value="">Ninguno / No aplica</option>';
+        function actualizarPlacas() {
+            const sucursalSeleccionada = sucursalSelect.value;
             
-            if (sucursalSeleccionada && datosFlota[sucursalSeleccionada]) {
+            // Limpiar opciones previas
+            placaSelect.innerHTML = '';
+
+            if (!sucursalSeleccionada) {
+                placaSelect.innerHTML = '<option value="">Seleccione primero una sucursal...</option>';
+                return;
+            }
+
+            // Opción por defecto
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Ninguno / No aplica';
+            placaSelect.appendChild(defaultOption);
+
+            // Cargar placas asociadas a la sucursal seleccionada
+            if (datosFlota[sucursalSeleccionada] && datosFlota[sucursalSeleccionada].length > 0) {
                 datosFlota[sucursalSeleccionada].forEach(placa => {
                     const option = document.createElement('option');
                     option.value = placa;
@@ -87,7 +101,16 @@
                     placaSelect.appendChild(option);
                 });
             }
-        });
-    }
+        }
+
+        if (sucursalSelect && placaSelect) {
+            sucursalSelect.addEventListener('change', actualizarPlacas);
+            
+            // Si el select ya tiene un valor predefinido (ej. al recargar con errores de validación)
+            if (sucursalSelect.value) {
+                actualizarPlacas();
+            }
+        }
+    });
 </script>
 @endpush

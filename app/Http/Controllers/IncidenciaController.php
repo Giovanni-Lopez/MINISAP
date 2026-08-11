@@ -8,39 +8,41 @@ use Carbon\Carbon;
 
 class IncidenciaController extends Controller
 {
-    public function index()
-        {
-            // 1. Traemos los datos de tus tablas reales para el formulario dinámico
-            $nombresSucursales = \App\Models\Sucursal::pluck('nombre')->toArray();
-            $placasVehiculos = \App\Models\Vehiculo::pluck('placa')->toArray();
+public function index()
+{
+    // 1. Cargar sucursales con SUS vehículos asociados que estén activos
+    $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
+        $q->where('activo', true);
+    }])->get();
 
-            $sucursalesConPlacas = [];
-            foreach ($nombresSucursales as $sucursal) {
-                $sucursalesConPlacas[$sucursal] = $placasVehiculos;
-            }
+    // Reestructuramos el array: ['Suc. San Salvador' => ['M-133064', ...], 'Suc. Ilopango' => ['M-119038', ...]]
+    $sucursalesConPlacas = [];
+    foreach ($sucursales as $sucursal) {
+        $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
+    }
 
-            // 2. FILTRO DE ROLES ESTRICTO
-            if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
-                // El usuario común SOLO recibe lo necesario para usar el formulario
-                return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
-            }
+    // 2. FILTRO DE ROLES ESTRICTO
+    if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
+        // El usuario común SOLO recibe lo necesario para usar el formulario
+        return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
+    }
 
-            // 3. Si es Administrador, calculamos el resto de la data global
-            $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
-            $pendientes = Incidencia::where('estado', 'Pendiente')->count();
-            $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
-            $finalizados = Incidencia::where('estado', 'Resuelto')->count();
-            $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
+    // 3. Si es Administrador, calculamos el resto de la data global
+    $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
+    $pendientes = Incidencia::where('estado', 'Pendiente')->count();
+    $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
+    $finalizados = Incidencia::where('estado', 'Resuelto')->count();
+    $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
 
-            return view('ops.muro', compact(
-                'incidencias', 
-                'sucursalesConPlacas', 
-                'pendientes', 
-                'enProceso', 
-                'finalizados', 
-                'alertasCombustible'
-            ));
-        }
+    return view('ops.muro', compact(
+        'incidencias', 
+        'sucursalesConPlacas', 
+        'pendientes', 
+        'enProceso', 
+        'finalizados', 
+        'alertasCombustible'
+    ));
+}
 
     public function store(Request $request)
     {

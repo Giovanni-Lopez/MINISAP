@@ -18,4 +18,12 @@ class Sucursal extends Model
         'direccion',
         'activa'
     ];
+
+    /**
+     * Relación: Una sucursal tiene muchos vehículos
+     */
+    public function vehiculos()
+    {
+        return $this->hasMany(Vehiculo::class, 'sucursal_id');
+    }
 }

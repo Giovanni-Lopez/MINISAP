@@ -5,12 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vehiculo extends Model
 {
     protected $table = 'vehiculos';
 
     protected $fillable = [
+        'sucursal_id', // <-- Permite asignación masiva de la sucursal
         'placa',
         'anio',
         'marca',
@@ -25,6 +27,12 @@ class Vehiculo extends Model
         'n_vin',
         'activo'
     ];
+
+    // Relación con la sucursal
+    public function sucursal(): BelongsTo
+    {
+        return $this->belongsTo(Sucursal::class);
+    }
 
     // Para obtener el historial de todas las asignaciones que ha tenido este vehículo
     public function asignaciones(): HasMany

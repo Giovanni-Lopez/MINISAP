@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RENOSA - Gestión de Flota</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- CORREGIDO: Cambiado class="stylesheet" por rel="stylesheet" -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans h-screen flex flex-col overflow-hidden m-0 p-0 relative">
@@ -60,7 +59,7 @@
                     </div>
                 @endif
 
-                <!-- Contenedor Principal (Full Width para la Tabla) -->
+                <!-- Contenedor Principal -->
                 <div class="grid grid-cols-1 gap-6 items-start">
                     
                     <div class="bg-gray-800 p-5 rounded-xl border border-gray-700/50 shadow-md flex flex-col justify-between w-full">
@@ -86,7 +85,6 @@
                                             <th class="py-3 px-4 w-[30%]">Ficha Técnica</th>
                                             <th class="py-3 px-4 w-[20%]">Números de Serie</th>
                                             <th class="py-3 px-4 w-[12%]">Estado</th>
-                                            <!-- Cambiado de text-right a text-left para acercar las acciones -->
                                             <th class="py-3 px-4 text-left w-[23%]">Acciones</th>
                                         </tr>
                                     </thead>
@@ -132,6 +130,18 @@
             <form action="{{ route('flota.store') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-2 gap-3 max-h-[65vh] overflow-y-auto pr-1">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Sucursal Asignada</label>
+                        <select name="sucursal_id" class="w-full bg-gray-800 border @error('sucursal_id') border-red-500 @else border-gray-700 @enderror rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            <option value="">-- Sin Sucursal Asignada --</option>
+                            @foreach($sucursales as $sucursal)
+                                <option value="{{ $sucursal->id }}" {{ old('sucursal_id') == $sucursal->id ? 'selected' : '' }}>
+                                    {{ $sucursal->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="col-span-2">
                         <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Placa *</label>
                         <input type="text" name="placa" value="{{ old('placa') }}" placeholder="Ej: M-966030" required 
@@ -216,6 +226,16 @@
                 @method('PUT')
 
                 <div class="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Sucursal Asignada</label>
+                        <select name="sucursal_id" id="modal-sucursal-select" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                            <option value="">-- Sin Sucursal Asignada --</option>
+                            @foreach($sucursales as $sucursal)
+                                <option value="{{ $sucursal->id }}">{{ $sucursal->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div class="col-span-2">
                         <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Número de Placa *</label>
                         <input type="text" name="placa" id="modal-placa-input" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500 uppercase">
@@ -355,10 +375,13 @@
                     </form>
                 `;
 
+                const nombreSucursal = v.sucursal ? v.sucursal.nombre : 'Sin asignación';
+
                 const detallesFicha = `
                     <div class="text-[11px] space-y-0.5 py-1">
                         <span class="text-gray-300 font-semibold">${v.marca || ''} ${v.modelo || ''} (${v.anio || ''})</span>
                         <div class="text-gray-500 font-mono text-[10px] flex gap-2 flex-wrap">
+                            <span class="text-amber-400 font-bold"><i class="fa-solid fa-store mr-1 text-[9px]"></i>${nombreSucursal}</span> | 
                             <span>Tipo: ${v.tipo || 'S/T'}</span> | 
                             <span>Clase: ${v.clase || 'S/C'}</span> | 
                             <span>Calidad: ${v.en_calidad || 'Propietario'}</span>
@@ -389,7 +412,6 @@
                     <td class="py-3 px-4">
                         ${badgeEstado}
                     </td>
-                    <!-- Cambiado de justify-end a justify-start para pegar los botones al contenido -->
                     <td class="py-3 px-4">
                         <div class="flex items-center justify-start gap-1.5 flex-wrap">
                             ${btnEditar}
@@ -422,6 +444,7 @@
             const form = document.getElementById('form-editar-vehiculo');
             form.action = `/flota/update/${v.id}`;
 
+            document.getElementById('modal-sucursal-select').value = v.sucursal_id || '';
             document.getElementById('modal-placa-input').value = v.placa || '';
             document.getElementById('modal-anio-input').value = v.anio || '';
             document.getElementById('modal-marca-input').value = v.marca || '';
@@ -452,11 +475,13 @@
             const query = e.target.value.toLowerCase().trim();
             
             vehiculosFiltrados = todosLosVehiculos.filter(v => {
+                const sucursalNombre = v.sucursal ? v.sucursal.nombre.toLowerCase() : '';
                 return v.placa.toLowerCase().includes(query) ||
                        (v.marca && v.marca.toLowerCase().includes(query)) ||
                        (v.modelo && v.modelo.toLowerCase().includes(query)) ||
                        (v.n_chasis && v.n_chasis.toLowerCase().includes(query)) ||
-                       (v.n_motor && v.n_motor.toLowerCase().includes(query));
+                       (v.n_motor && v.n_motor.toLowerCase().includes(query)) ||
+                       sucursalNombre.includes(query);
             });
 
             paginaActual = 1;
