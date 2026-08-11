@@ -8,6 +8,7 @@ use App\Http\Controllers\CombustibleController;
 use App\Http\Controllers\ConductorController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\AsignacionFlotaController;
+use App\Http\Controllers\KmDiarioController;
 
 // Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
 Route::get('/', function () {
@@ -113,3 +114,7 @@ Route::delete('/sucursales/{id}', [SucursalController::class, 'destroy'])->name(
 Route::get('/asignaciones-flota', [AsignacionFlotaController::class, 'index'])->name('asignaciones.index');
 Route::post('/asignaciones-flota', [AsignacionFlotaController::class, 'store'])->name('asignaciones.store');
 Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::class, 'liberar'])->name('asignaciones.liberar');
+
+//Ruta para el control de kilometrajes Diarios
+Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
+Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');
