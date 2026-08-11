@@ -10,17 +10,18 @@ class CombustibleController extends Controller
 {
     public function index()
     {
-        // 1. Traemos de forma dinámica las sucursales y las placas reales de la BD
-        $nombresSucursales = \App\Models\Sucursal::pluck('nombre')->toArray();
-        $placasVehiculos = \App\Models\Vehiculo::pluck('placa')->toArray();
+        // 1. Cargar sucursales con SUS vehículos asociados activos
+        $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
+            $q->where('activo', true);
+        }])->get();
 
-        // 2. Mapeamos las sucursales con todas las placas reales
+        // 2. Mapeamos cada sucursal ÚNICAMENTE con sus placas correspondientes
         $sucursalesConPlacas = [];
-        foreach ($nombresSucursales as $sucursal) {
-            $sucursalesConPlacas[$sucursal] = $placasVehiculos;
+        foreach ($sucursales as $sucursal) {
+            $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
         }
 
-        // 3. ¡CONECTADO CON TU MODELO! Jalamos los conductores activos uniendo Nombres y Apellidos
+        // 3. Jalamos los conductores activos uniendo Nombres y Apellidos
         $conductoresReales = \App\Models\Conductor::where('activo', true)
             ->get()
             ->map(function ($conductor) {
@@ -28,10 +29,10 @@ class CombustibleController extends Controller
             })
             ->toArray();
 
-        // 4. Mapeamos para que cualquier sucursal tenga acceso a la lista real de conductores
+        // 4. Mapeamos los conductores por sucursal
         $usuariosPorSucursal = [];
-        foreach ($nombresSucursales as $sucursal) {
-            $usuariosPorSucursal[$sucursal] = $conductoresReales;
+        foreach ($sucursales as $sucursal) {
+            $usuariosPorSucursal[$sucursal->nombre] = $conductoresReales;
         }
 
         return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
