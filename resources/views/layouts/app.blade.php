@@ -19,7 +19,7 @@
             
             <!-- Etiqueta dinámica de rol -->
             <span class="text-[10px] md:text-xs {{ Auth::user()->role === 'admin' ? 'bg-red-950 text-red-400' : 'bg-emerald-950 text-emerald-400' }} px-2.5 py-1 rounded font-mono font-bold whitespace-nowrap uppercase">
-                PORTAL {{ Auth::user()->role === 'admin' ? 'ADMIN' : 'SUCURSAL' }}
+                PORTAL {{ Auth::user()->role === 'admin' ? 'ADMIN' : (Auth::user()->role === 'coordinador' ? 'COORDINADOR' : 'GESTOR') }}
             </span>
         </div>
 
@@ -49,21 +49,25 @@
                 </div>
 
                 <nav class="space-y-2">
-                    <!-- Rutas comunes / Usuarios no admin -->
+                    <!-- 1. CheckList: Visible para TODOS (Gestor, Coordinador, Admin) -->
                     <a href="/muro" class="w-full {{ Request::is('muro*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
                         <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i>
                         <span>CheckList</span>
                     </a>
-                    <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
-                        <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
-                        <span>Combustible</span>
-                    </a>
-                    <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
-                        <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
-                        <span>KM Diarios</span>
-                    </a>
 
-                    <!-- SECCIÓN EXCLUSIVA DE ADMINISTRADOR (MÓVIL) -->
+                    <!-- 2. Combustible y KM: Visibles SOLO para Coordinador y Admin -->
+                    @if(in_array(Auth::user()->role, ['coordinador', 'admin']))
+                        <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
+                            <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
+                            <span>Combustible</span>
+                        </a>
+                        <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
+                            <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
+                            <span>KM Diarios</span>
+                        </a>
+                    @endif
+
+                    <!-- 3. Módulo exclusivo de Administrador -->
                     @if(Auth::user()->role === 'admin')
                         <div class="pt-4 mt-4 border-t border-gray-800">
                             <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-2">Administración</h4>
@@ -89,23 +93,27 @@
     <div class="flex flex-1 pt-16 w-full">
         <aside class="w-64 bg-gray-900 border-r border-gray-800 p-4 space-y-2 hidden md:flex flex-col fixed h-[calc(100vh-4rem)] left-0 top-16 z-30 justify-between">
             <div class="space-y-2">
-                <!-- Rutas del Usuario Normal -->
                 <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Operaciones</h4>
                 
+                <!-- 1. CheckList: Visible para TODOS (Gestor, Coordinador, Admin) -->
                 <a href="/muro" class="w-full {{ Request::is('muro*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
                     <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i>
                     <span>CheckList</span>
                 </a>
-                <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                    <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
-                    <span>Combustible</span>
-                </a>
-                <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                    <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
-                    <span>KM Diarios</span>
-                </a>
 
-                <!-- SECCIÓN EXCLUSIVA DE ADMINISTRADOR (ESCRITORIO) -->
+                <!-- 2. Combustible y KM: Visibles SOLO para Coordinador y Admin -->
+                @if(in_array(Auth::user()->role, ['coordinador', 'admin']))
+                    <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
+                        <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
+                        <span>Combustible</span>
+                    </a>
+                    <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
+                        <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
+                        <span>KM Diarios</span>
+                    </a>
+                @endif
+
+                <!-- 3. Módulo exclusivo de Administrador -->
                 @if(Auth::user()->role === 'admin')
                     <div class="pt-4 mt-4 border-t border-gray-800/60 space-y-2">
                         <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Gestión Control</h4>

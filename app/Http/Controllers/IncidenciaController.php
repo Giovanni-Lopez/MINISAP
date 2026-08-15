@@ -21,13 +21,12 @@ public function index()
         $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
     }
 
-    // 2. FILTRO DE ROLES ESTRICTO
-    if (auth()->user()->role === 'user' || auth()->user()->role === 'sucursal') {
-        // El usuario común SOLO recibe lo necesario para usar el formulario
+    // 2. FILTRO DE ROLES: Gestores, Sucursales Y Coordinadores usan el formulario del CheckList
+    if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
         return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
     }
 
-    // 3. Si es Administrador, calculamos el resto de la data global
+    // 3. SOLO el Administrador llega hasta aquí para ver el Muro Completo (Feed + Métricas)
     $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
     $pendientes = Incidencia::where('estado', 'Pendiente')->count();
     $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
