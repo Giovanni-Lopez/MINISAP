@@ -121,3 +121,7 @@ Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store
 
 //Ruta para que el controlar muestre una lista de datos ingresados
 Route::get('/historial-combustible', [CombustibleController::class, 'historial'])->name('combustible.historial');
+
+//Rutas para que el controlador edite e elimine un registro
+Route::put('/combustible/{id}', [CombustibleController::class, 'update'])->name('combustible.update');
+Route::delete('/combustible/{id}', [CombustibleController::class, 'destroy'])->name('combustible.destroy');
