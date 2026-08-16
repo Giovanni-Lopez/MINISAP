@@ -118,3 +118,6 @@ Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::clas
 //Ruta para el control de kilometrajes Diarios
 Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
 Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');
+
+//Ruta para que el controlar muestre una lista de datos ingresados
+Route::get('/historial-combustible', [CombustibleController::class, 'historial'])->name('combustible.historial');

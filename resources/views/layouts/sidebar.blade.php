@@ -50,7 +50,7 @@
                         <span>Conductores</span>
                     </a>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                    <a href="{{ route('combustible.historial') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                         <i class="fa-solid fa-clock-rotate-left w-5 text-center text-lg"></i>
                         <span>Historial</span>
                     </a>
