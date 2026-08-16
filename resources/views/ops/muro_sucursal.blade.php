@@ -26,7 +26,7 @@
                     <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Sucursal Afectada</label>
                     <select name="sucursal" id="sucursal-select" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner">
                         <option value="">Seleccione Sucursal...</option>
-                        @foreach($sucursalesConPlacas as $nombreSucursal => $placas)
+                        @foreach($sucursalesConPlacas as $nombreSucursal => $vehiculos)
                             <option value="{{ $nombreSucursal }}">{{ $nombreSucursal }}</option>
                         @endforeach
                     </select>
@@ -78,7 +78,6 @@
         function actualizarPlacas() {
             const sucursalSeleccionada = sucursalSelect.value;
             
-            // Limpiar opciones previas
             placaSelect.innerHTML = '';
 
             if (!sucursalSeleccionada) {
@@ -86,18 +85,16 @@
                 return;
             }
 
-            // Opción por defecto
             const defaultOption = document.createElement('option');
             defaultOption.value = '';
             defaultOption.textContent = 'Ninguno / No aplica';
             placaSelect.appendChild(defaultOption);
 
-            // Cargar placas asociadas a la sucursal seleccionada
             if (datosFlota[sucursalSeleccionada] && datosFlota[sucursalSeleccionada].length > 0) {
-                datosFlota[sucursalSeleccionada].forEach(placa => {
+                datosFlota[sucursalSeleccionada].forEach(v => {
                     const option = document.createElement('option');
-                    option.value = placa;
-                    option.textContent = placa;
+                    option.value = v.placa; // Envía la placa
+                    option.textContent = v.texto; // Muestra: M-967492 - YAMAHA YBR 125...
                     placaSelect.appendChild(option);
                 });
             }
@@ -106,7 +103,6 @@
         if (sucursalSelect && placaSelect) {
             sucursalSelect.addEventListener('change', actualizarPlacas);
             
-            // Si el select ya tiene un valor predefinido (ej. al recargar con errores de validación)
             if (sucursalSelect.value) {
                 actualizarPlacas();
             }

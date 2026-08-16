@@ -7,12 +7,16 @@
         "dev": "vite"
     },
     "devDependencies": {
-        "@tailwindcss/vite": "^4.0.0",
-        "autoprefixer": "^10.5.2",
+        "@tailwindcss/vite": "^4.3.3",
+        "autoprefixer": "^10.5.4",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^3.1",
-        "postcss": "^8.5.15",
-        "tailwindcss": "^4.3.1",
+        "postcss": "^8.5.26",
+        "tailwindcss": "^4.3.3",
         "vite": "^8.0.0"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.3.1",
+        "alpinejs": "^3.16.1"
     }
 }

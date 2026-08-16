@@ -18,7 +18,6 @@
             <p class="text-xs text-gray-400 mt-1">Llena con precisión los datos del ticket de carga de combustible de la unidad.</p>
         </div>
 
-        <!-- Agregamos un ID al formulario para controlarlo con JavaScript -->
         <form id="combustible-form" action="{{ route('combustible.store') }}" method="POST" class="space-y-5">
             @csrf
 
@@ -27,7 +26,7 @@
                     <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">1. Sucursal *</label>
                     <select name="sucursal" id="sucursal-select" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner">
                         <option value="">Seleccione la respuesta</option>
-                        @foreach($sucursalesConPlacas as $nombreSucursal => $placas)
+                        @foreach($sucursalesConPlacas as $nombreSucursal => $vehiculos)
                             <option value="{{ $nombreSucursal }}">{{ $nombreSucursal }}</option>
                         @endforeach
                     </select>
@@ -147,12 +146,12 @@
         placaManualInput.removeAttribute('required');
         placaManualInput.value = '';
 
-        placaSelect.innerHTML = '<option value="">Seleccione una placa...</option>';
+        placaSelect.innerHTML = '<option value="">-- Elige un vehículo --</option>';
         if (sucursalSeleccionada && datosFlota[sucursalSeleccionada]) {
-            datosFlota[sucursalSeleccionada].forEach(placa => {
+            datosFlota[sucursalSeleccionada].forEach(v => {
                 const option = document.createElement('option');
-                option.value = placa;
-                option.textContent = placa;
+                option.value = v.placa; // Asigna solo la placa al form
+                option.textContent = v.texto; // Muestra: M-966484 - YAMAHA YBR 125 ED (2025)
                 placaSelect.appendChild(option);
             });
             
@@ -189,12 +188,10 @@
         }
     });
 
-    // CORRECCIÓN CLAVE: Interceptamos el envío para mandar la placa manual si se seleccionó "OTRO"
     formulario.addEventListener('submit', function(e) {
         if (placaSelect.value === 'OTRO') {
             const valorManual = placaManualInput.value.trim().toUpperCase();
             if (valorManual !== '') {
-                // Cambiamos temporalmente el valor del select para que viaje el texto escrito a mano
                 placaSelect.options[placaSelect.selectedIndex].value = valorManual;
             }
         }

@@ -9,34 +9,39 @@ use App\Models\RegistroCombustible;
 class CombustibleController extends Controller
 {
     public function index()
-    {
-        // 1. Cargar sucursales con SUS vehículos asociados activos
-        $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
-            $q->where('activo', true);
-        }])->get();
+{
+    // Cargar sucursales con SUS vehículos asociados activos
+    $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
+        $q->where('activo', true);
+    }])->get();
 
-        // 2. Mapeamos cada sucursal ÚNICAMENTE con sus placas correspondientes
-        $sucursalesConPlacas = [];
-        foreach ($sucursales as $sucursal) {
-            $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
-        }
-
-        // 3. Jalamos los conductores activos uniendo Nombres y Apellidos
-        $conductoresReales = \App\Models\Conductor::where('activo', true)
-            ->get()
-            ->map(function ($conductor) {
-                return trim($conductor->nombres . ' ' . $conductor->apellidos);
-            })
-            ->toArray();
-
-        // 4. Mapeamos los conductores por sucursal
-        $usuariosPorSucursal = [];
-        foreach ($sucursales as $sucursal) {
-            $usuariosPorSucursal[$sucursal->nombre] = $conductoresReales;
-        }
-
-        return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
+    // Mapeamos cada sucursal con el detalle completo de sus vehículos
+    $sucursalesConPlacas = [];
+    foreach ($sucursales as $sucursal) {
+        $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->map(function($v) {
+            return [
+                'placa' => $v->placa,
+                'texto' => "{$v->placa} - {$v->marca} {$v->modelo} ({$v->anio})"
+            ];
+        })->toArray();
     }
+
+    // Jalamos los conductores activos uniendo Nombres y Apellidos
+    $conductoresReales = \App\Models\Conductor::where('activo', true)
+        ->get()
+        ->map(function ($conductor) {
+            return trim($conductor->nombres . ' ' . $conductor->apellidos);
+        })
+        ->toArray();
+
+    // Mapeamos los conductores por sucursal
+    $usuariosPorSucursal = [];
+    foreach ($sucursales as $sucursal) {
+        $usuariosPorSucursal[$sucursal->nombre] = $conductoresReales;
+    }
+
+    return view('ops.combustible_sucursal', compact('sucursalesConPlacas', 'usuariosPorSucursal'));
+}
 
     public function store(Request $request)
     {

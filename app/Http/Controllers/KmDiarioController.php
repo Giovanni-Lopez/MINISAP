@@ -7,21 +7,25 @@ use App\Models\KmDiario;
 
 class KmDiarioController extends Controller
 {
-    public function index()
-    {
-        // Traemos sucursales con SUS vehículos asociados activos
-        $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
-            $q->where('activo', true);
-        }])->get();
+   public function index()
+{
+    // Traemos sucursales con sus vehículos activos
+    $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
+        $q->where('activo', true);
+    }])->get();
 
-        $sucursalesConPlacas = [];
-        foreach ($sucursales as $sucursal) {
-            $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
-        }
-
-        // Retornamos tu vista de KM Diarios (ajusta la ruta del blade si es necesario)
-        return view('ops.km_sucursal', compact('sucursalesConPlacas'));
+    $sucursalesConPlacas = [];
+    foreach ($sucursales as $sucursal) {
+        $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->map(function($v) {
+            return [
+                'placa' => $v->placa,
+                'texto' => "{$v->placa} - {$v->marca} {$v->modelo} ({$v->anio})"
+            ];
+        })->toArray();
     }
+
+    return view('ops.km_sucursal', compact('sucursalesConPlacas'));
+}
 
     public function store(Request $request)
     {

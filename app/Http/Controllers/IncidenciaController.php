@@ -8,40 +8,45 @@ use Carbon\Carbon;
 
 class IncidenciaController extends Controller
 {
-public function index()
-{
-    // 1. Cargar sucursales con SUS vehículos asociados que estén activos
-    $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
-        $q->where('activo', true);
-    }])->get();
+    public function index()
+    {
+        // Cargar sucursales con SUS vehículos asociados que estén activos
+        $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
+            $q->where('activo', true);
+        }])->get();
 
-    // Reestructuramos el array: ['Suc. San Salvador' => ['M-133064', ...], 'Suc. Ilopango' => ['M-119038', ...]]
-    $sucursalesConPlacas = [];
-    foreach ($sucursales as $sucursal) {
-        $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->pluck('placa')->toArray();
+        // Reestructuramos el array con el formato completo: ['placa' => ..., 'texto' => ...]
+        $sucursalesConPlacas = [];
+        foreach ($sucursales as $sucursal) {
+            $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->map(function($v) {
+                return [
+                    'placa' => $v->placa,
+                    'texto' => "{$v->placa} - {$v->marca} {$v->modelo} ({$v->anio})"
+                ];
+            })->toArray();
+        }
+
+        // FILTRO DE ROLES: Gestores, Sucursales Y Coordinadores usan el formulario del CheckList
+        if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
+            return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
+        }
+
+        // SOLO el Administrador llega hasta aquí para ver el Muro Completo (Feed + Métricas)
+        $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
+        $pendientes = Incidencia::where('estado', 'Pendiente')->count();
+        $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
+        $finalizados = Incidencia::where('estado', 'Resuelto')->count();
+        $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
+
+        return view('ops.muro', compact(
+            'incidencias', 
+            'sucursalesConPlacas', 
+            'pendientes', 
+            'enProceso', 
+            'finalizados', 
+            'alertasCombustible'
+        ));
     }
-
-    // 2. FILTRO DE ROLES: Gestores, Sucursales Y Coordinadores usan el formulario del CheckList
-    if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
-        return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
-    }
-
-    // 3. SOLO el Administrador llega hasta aquí para ver el Muro Completo (Feed + Métricas)
-    $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
-    $pendientes = Incidencia::where('estado', 'Pendiente')->count();
-    $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
-    $finalizados = Incidencia::where('estado', 'Resuelto')->count();
-    $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
-
-    return view('ops.muro', compact(
-        'incidencias', 
-        'sucursalesConPlacas', 
-        'pendientes', 
-        'enProceso', 
-        'finalizados', 
-        'alertasCombustible'
-    ));
-}
 
     public function store(Request $request)
     {

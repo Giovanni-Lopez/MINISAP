@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RENOSA - @yield('titulo', 'Portal Sucursal')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>RENOSA - @yield('titulo', 'Portal Sucursal')</title>   
+    <!-- Alpine.js para control del menú -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-gray-950 text-gray-100 font-sans min-h-screen flex flex-col m-0 p-0 relative">
+<body x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="bg-gray-950 text-gray-100 font-sans min-h-screen flex flex-col m-0 p-0 relative">
 
     <!-- NAVBAR SUPERIOR -->
     <nav class="bg-gray-900 border-b border-gray-800 px-4 md:px-6 py-4 shadow-xl flex justify-between items-center fixed top-0 w-full z-50 h-16">
         <div class="flex items-center gap-3">
-            <button id="btn-toggle-menu" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none md:hidden block cursor-pointer">
-                <i class="fa-solid fa-bars" id="icono-hamburguesa"></i>
+            <!-- BOTÓN HAMBURGUESA GENERAL -->
+            <button @click="sidebarOpen = !sidebarOpen" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none cursor-pointer">
+                <i class="fa-solid fa-bars"></i>
             </button>
             <img src="https://lh3.googleusercontent.com/d/1AlBG27NmFnim8krD4_bb1aUWEdSLUlB3" alt="Logo RENOSA" class="h-10 md:h-12 w-auto object-contain">    
             
@@ -36,134 +37,33 @@
         </div>
     </nav>
 
-    <!-- MENÚ MÓVIL DESPLEGABLE -->
-    <div id="mobile-menu" class="fixed inset-0 bg-gray-950/80 z-55 hidden transition-all duration-300 md:hidden backdrop-blur-xs">
-        <div class="w-72 bg-gray-900 h-full p-5 flex flex-col justify-between border-r border-gray-800 shadow-2xl relative">
-            
-            <div class="space-y-6">
-                <div class="flex justify-between items-center pb-2 border-b border-gray-800">
-                    <h3 class="text-xs uppercase tracking-wider text-gray-500 font-mono font-bold px-2">Navegación</h3>
-                    <button id="btn-close-menu" class="text-gray-400 hover:text-white text-lg p-1 focus:outline-none cursor-pointer">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <nav class="space-y-2">
-                    <!-- 1. CheckList: Visible para TODOS (Gestor, Coordinador, Admin) -->
-                    <a href="/muro" class="w-full {{ Request::is('muro*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
-                        <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i>
-                        <span>CheckList</span>
-                    </a>
-
-                    <!-- 2. Combustible y KM: Visibles SOLO para Coordinador y Admin -->
-                    @if(in_array(Auth::user()->role, ['coordinador', 'admin']))
-                        <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
-                            <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
-                            <span>Combustible</span>
-                        </a>
-                        <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition">
-                            <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
-                            <span>KM Diarios</span>
-                        </a>
-                    @endif
-
-                    <!-- 3. Módulo exclusivo de Administrador -->
-                    @if(Auth::user()->role === 'admin')
-                        <div class="pt-4 mt-4 border-t border-gray-800">
-                            <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-2">Administración</h4>
-                            
-                            <a href="/asignaciones-flota" class="w-full {{ Request::is('asignaciones-flota*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition mb-1">
-                                <i class="fa-solid fa-key w-5 text-center text-lg"></i>
-                                <span>Asignaciones</span>
-                            </a>
-                            <a href="/usuarios" class="w-full {{ Request::is('usuarios*') ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition mb-1">
-                                <i class="fa-solid fa-users-gear w-5 text-center text-lg"></i>
-                                <span>Conductores</span>
-                            </a>
-                        </div>
-                    @endif
-                </nav>
-            </div>
-            
-            <div class="text-center text-[10px] text-gray-600 font-mono">RENOSA © 2026</div>
-        </div>
+    <!-- OVERLAY OSCURO PARA PANTALLAS MÓVILES -->
+    <div x-show="sidebarOpen" 
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="sidebarOpen = false" 
+         class="fixed inset-0 bg-gray-950/80 z-40 md:hidden backdrop-blur-xs">
     </div>
 
-    <!-- CONTENEDOR PRINCIPAL Y SIDEBAR DE ESCRITORIO -->
+    <!-- CONTENEDOR PRINCIPAL Y SIDEBAR -->
     <div class="flex flex-1 pt-16 w-full">
-        <aside class="w-64 bg-gray-900 border-r border-gray-800 p-4 space-y-2 hidden md:flex flex-col fixed h-[calc(100vh-4rem)] left-0 top-16 z-30 justify-between">
-            <div class="space-y-2">
-                <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Operaciones</h4>
-                
-                <!-- 1. CheckList: Visible para TODOS (Gestor, Coordinador, Admin) -->
-                <a href="/muro" class="w-full {{ Request::is('muro*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                    <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i>
-                    <span>CheckList</span>
-                </a>
+        <!-- BARRA LATERAL (SIDEBAR) -->
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+               class="w-64 bg-gray-900 border-r border-gray-800 flex flex-col fixed h-[calc(100vh-4rem)] left-0 top-16 z-50 md:z-30 transition-transform duration-300 ease-in-out">
+            
+           @include('layouts.sidebar')
 
-                <!-- 2. Combustible y KM: Visibles SOLO para Coordinador y Admin -->
-                @if(in_array(Auth::user()->role, ['coordinador', 'admin']))
-                    <a href="/combustible" class="w-full {{ Request::is('combustible*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                        <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
-                        <span>Combustible</span>
-                    </a>
-                    <a href="/km-diarios" class="w-full {{ Request::is('km-diarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                        <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
-                        <span>KM Diarios</span>
-                    </a>
-                @endif
-
-                <!-- 3. Módulo exclusivo de Administrador -->
-                @if(Auth::user()->role === 'admin')
-                    <div class="pt-4 mt-4 border-t border-gray-800/60 space-y-2">
-                        <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Gestión Control</h4>
-                        
-                        <a href="/asignaciones-flota" class="w-full {{ Request::is('asignaciones-flota*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                            <i class="fa-solid fa-key w-5 text-center text-lg"></i>
-                            <span>Asignaciones</span>
-                        </a>
-                        <a href="/usuarios" class="w-full {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:text-white hover:bg-gray-800 border border-transparent hover:border-gray-700/50' }} px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-3 transition duration-200">
-                            <i class="fa-solid fa-users-gear w-5 text-center text-lg"></i>
-                            <span>Conductores</span>
-                        </a>
-                    </div>
-                @endif
-            </div>
-
-            <div class="text-center text-[10px] text-gray-600 font-mono pb-2">RENOSA © 2026</div>
         </aside>
 
-        <!-- CONTENIDO DE LAS VISTAS -->
-        <main class="flex-1 w-full md:ml-64 p-4 md:p-8 flex flex-col justify-start items-center overflow-x-hidden">
+        <!-- CONTENIDO PRINCIPAL ADAPTABLE -->
+        <main :class="sidebarOpen ? 'md:ml-64' : 'md:ml-0'" class="flex-1 w-full p-4 md:p-8 flex flex-col justify-start items-center overflow-x-hidden transition-all duration-300">
             @yield('contenido')
         </main>
     </div>
-
-    <!-- SCRIPT DE NAVEGACIÓN MÓVIL -->
-    <script>
-        const btnToggleMenu = document.getElementById('btn-toggle-menu');
-        const btnCloseMenu = document.getElementById('btn-close-menu');
-        const mobileMenu = document.getElementById('mobile-menu');
-
-        if (btnToggleMenu && mobileMenu) {
-            btnToggleMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mobileMenu.classList.remove('hidden');
-            });
-
-            if (btnCloseMenu) {
-                btnCloseMenu.addEventListener('click', function() {
-                    mobileMenu.classList.add('hidden');
-                });
-            }
-
-            mobileMenu.addEventListener('click', function(e) {
-                if (e.target === mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-        }
-    </script>
 
     @stack('scripts')
 

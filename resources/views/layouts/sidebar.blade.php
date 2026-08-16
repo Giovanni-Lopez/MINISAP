@@ -1,41 +1,65 @@
 <div class="flex flex-col justify-between h-full w-full">
-    <div class="p-4 space-y-6">
+    <div class="p-4 space-y-6 overflow-y-auto">
         <nav class="space-y-2">
-            <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('muro*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i> CheckList
+            
+            <!-- 1. CheckList: Visible para TODOS (Gestor, Coordinador, Admin) -->
+            <a href="/muro" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('muro*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                <i class="fa-solid fa-clipboard-list w-5 text-center text-lg"></i>
+                <span>CheckList</span>
             </a>
 
-            <a href="{{ route('sucursales.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('sucursales*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-shop"></i>
-                <span>Sucursales</span>
-            </a>
+            <!-- 2. Combustible y KM Diarios: Visibles SOLO para Coordinador y Admin -->
+            @if(in_array(Auth::user()->role, ['coordinador', 'admin']))
+                <a href="/combustible" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('combustible*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                    <i class="fa-solid fa-gas-pump w-5 text-center text-lg"></i>
+                    <span>Combustible</span>
+                </a>
 
-            <a href="{{ route('flota.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('flota.*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-truck-moving w-5 text-center text-lg"></i> Flota
-            </a>
+                <a href="/km-diarios" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('km-diarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                    <i class="fa-solid fa-road w-5 text-center text-lg text-blue-500"></i>
+                    <span>KM Diarios</span>
+                </a>
+            @endif
 
-            <a href="{{ route('asignaciones.index') }}" 
-            class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 
-                    {{ request()->routeIs('asignaciones.*') 
-                        ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' 
-                        : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100' }}">
-                <div class="flex items-center justify-center w-5 h-5">
-                    <i class="fa-solid fa-key text-base"></i>
+            <!-- 3. Módulos EXCLUSIVOS para Administrador -->
+            @if(Auth::user()->role === 'admin')
+                <div class="pt-4 mt-4 border-t border-gray-800/60 space-y-2">
+                    <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Administración</h4>
+
+                    @if(Route::has('sucursales.index'))
+                        <a href="{{ route('sucursales.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('sucursales*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                            <i class="fa-solid fa-shop w-5 text-center text-lg"></i>
+                            <span>Sucursales</span>
+                        </a>
+                    @endif
+
+                    @if(Route::has('flota.index'))
+                        <a href="{{ route('flota.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->routeIs('flota.*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                            <i class="fa-solid fa-truck-moving w-5 text-center text-lg"></i>
+                            <span>Flota</span>
+                        </a>
+                    @endif
+
+                    <a href="/asignaciones-flota" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 {{ Request::is('asignaciones-flota*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/30' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100' }}">
+                        <i class="fa-solid fa-key w-5 text-center text-lg"></i>
+                        <span>Asignaciones</span>
+                    </a>
+
+                    <a href="/usuarios" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <i class="fa-solid fa-users-gear w-5 text-center text-lg"></i>
+                        <span>Conductores</span>
+                    </a>
+
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <i class="fa-solid fa-clock-rotate-left w-5 text-center text-lg"></i>
+                        <span>Historial</span>
+                    </a>
                 </div>
-                <span>Asignación de Flota</span>
-            </a>
-
-            <a href="{{ route('usuarios.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-users-gear"></i>
-                <span>Personal</span>
-            </a>
-
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ request()->is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                <i class="fa-solid fa-clock-history w-5 text-center text-lg"></i> Historial
-            </a>
+            @endif
         </nav>
     </div>
 
+    <!-- PIE DEL SIDEBAR -->
     <div class="p-4 border-t border-gray-800 bg-gray-900/20 space-y-4">
         <form action="{{ route('logout') }}" method="POST" class="w-full m-0">
             @csrf

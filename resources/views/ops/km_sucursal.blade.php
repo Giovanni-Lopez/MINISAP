@@ -26,7 +26,7 @@
                     <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">1. Sucursal *</label>
                     <select name="sucursal" id="sucursal-select" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner">
                         <option value="">Seleccione Sucursal...</option>
-                        @foreach($sucursalesConPlacas as $nombreSucursal => $placas)
+                        @foreach($sucursalesConPlacas as $nombreSucursal => $vehiculos)
                             <option value="{{ $nombreSucursal }}">{{ $nombreSucursal }}</option>
                         @endforeach
                     </select>
@@ -85,12 +85,12 @@
         placaManualInput.removeAttribute('required');
         placaManualInput.value = '';
 
-        placaSelect.innerHTML = '<option value="">Seleccione una placa...</option>';
+        placaSelect.innerHTML = '<option value="">-- Elige un vehículo --</option>';
         if (sucursalSeleccionada && datosFlota[sucursalSeleccionada]) {
-            datosFlota[sucursalSeleccionada].forEach(placa => {
+            datosFlota[sucursalSeleccionada].forEach(v => {
                 const option = document.createElement('option');
-                option.value = placa;
-                option.textContent = placa;
+                option.value = v.placa; // Se guarda únicamente la placa
+                option.textContent = v.texto; // Muestra: M-607460 - YAMAHA YBR 125 ED (2020)
                 placaSelect.appendChild(option);
             });
             const optionOtro = document.createElement('option');
