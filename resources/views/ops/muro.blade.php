@@ -1,6 +1,3 @@
-Aquí tienes el código completo de **`muro.blade.php`** listo para copiar y pegar, integrando la visualización de los puntos de revisión del CheckList en las tarjetas del Feed:
-
-```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
