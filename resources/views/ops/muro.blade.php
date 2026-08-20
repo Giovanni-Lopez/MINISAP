@@ -1,3 +1,6 @@
+Aquí tienes el código completo de **`muro.blade.php`** listo para copiar y pegar, integrando la visualización de los puntos de revisión del CheckList en las tarjetas del Feed:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,7 +42,7 @@
     <!-- Contenedor Base -->
     <div class="flex flex-1 w-full h-full overflow-hidden relative">
 
-        <!-- Sidebar (Corregido: bg-gray-900 sólido para evitar transparencias y transform dinámico) -->
+        <!-- Sidebar -->
         <div id="sidebar-container" class="fixed md:relative inset-y-0 left-0 top-16 md:top-0 z-40 w-64 bg-gray-900 border-r border-gray-800 transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 h-[calc(100vh-4rem)] md:h-full flex flex-col shrink-0">
             @include('layouts.sidebar')
         </div>
@@ -100,7 +103,7 @@
                                     }
                                 @endphp
 
-                                <div class="bg-gray-800 p-4 md:p-5 rounded-xl border-l-8 {{ $borderColor }} shadow-md flex flex-col gap-4">
+                                <div class="bg-gray-800 p-4 md:p-5 rounded-xl border-l-8 {{ $borderColor }} shadow-md flex flex-col gap-3">
                                     <div class="flex justify-between items-start gap-2">
                                         <div class="flex items-center gap-3 flex-wrap">
                                             <div>
@@ -133,12 +136,24 @@
                                         </div>
                                     </div>
 
+                                    {{-- REVISIONES / CHECKLIST GUARDADO --}}
+                                    @if(!empty($incidencia->revisiones) && is_array($incidencia->revisiones) && count($incidencia->revisiones) > 0)
+                                        <div class="flex flex-wrap gap-1.5 my-1">
+                                            @foreach($incidencia->revisiones as $punto)
+                                                <span class="text-[11px] bg-gray-900/90 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5 shadow-xs">
+                                                    <i class="fa-solid fa-square-check text-emerald-500 text-xs"></i> {{ $punto }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    {{-- DESCRIPCIÓN --}}
                                     <p class="text-sm text-gray-300 leading-relaxed bg-gray-900/40 p-3 rounded-lg border border-gray-700/50 break-words">
                                         {{ $incidencia->descripcion }}
                                     </p>
 
                                     @if(!empty($incidencia->comentarios))
-                                        <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-2">
+                                        <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-1">
                                             <span class="text-[9px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
                                                 <i class="fa-solid fa-wrench text-[10px]"></i> Notas de Resolución / Bitácora:
                                             </span>
@@ -232,7 +247,7 @@
 
     <!-- SCRIPTS DE CONTROL -->
     <script>
-        // Lógica del Menú Desplegable Móvil (Corregida e Integrada)
+        // Lógica del Menú Desplegable Móvil
         const btnToggleMenu = document.getElementById('btn-toggle-menu');
         const sidebar = document.getElementById('sidebar-container');
         const overlay = document.getElementById('sidebar-overlay');
@@ -256,7 +271,7 @@
         }
 
         // Lógica de Sucursales y Placas Dinámicas
-        const placasPorSucursal = @json($sucursalesConPlacas);
+        const placasPorSucursal = @json($sucursalesConPlacas ?? []);
         const selectSucursal = document.querySelector('select[name="sucursal"]');
         const selectPlaca = document.getElementById('select-placa');
 

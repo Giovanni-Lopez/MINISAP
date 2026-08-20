@@ -82,8 +82,8 @@ class CombustibleController extends Controller
     public function historial()
     {
         // Obtiene los registros ordenados y los pagina de 15 en 15
-        $registros = \App\Models\RegistroCombustible::orderBy('fecha', 'desc')
-            ->orderBy('created_at', 'desc')
+        $registros = \App\Models\RegistroCombustible::orderBy('fecha', 'asc')
+            ->orderBy('created_at', 'asc')
             ->paginate(15);
 
         return view('ops.historial_combustible', compact('registros'));

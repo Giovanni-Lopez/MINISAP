@@ -10,12 +10,11 @@ class IncidenciaController extends Controller
 {
     public function index()
     {
-        // Cargar sucursales con SUS vehículos asociados que estén activos
+        // 1. Cargar sucursales con vehículos activos
         $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
             $q->where('activo', true);
         }])->get();
 
-        // Reestructuramos el array con el formato completo: ['placa' => ..., 'texto' => ...]
         $sucursalesConPlacas = [];
         foreach ($sucursales as $sucursal) {
             $sucursalesConPlacas[$sucursal->nombre] = $sucursal->vehiculos->map(function($v) {
@@ -26,18 +25,26 @@ class IncidenciaController extends Controller
             })->toArray();
         }
 
-        // FILTRO DE ROLES: Gestores, Sucursales Y Coordinadores usan el formulario del CheckList
-        if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
-            return view('ops.muro_sucursal', compact('sucursalesConPlacas'));
-        }
-
-        // SOLO el Administrador llega hasta aquí para ver el Muro Completo (Feed + Métricas)
+        // 2. Datos generales (incidencias y métricas)
         $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
         $pendientes = Incidencia::where('estado', 'Pendiente')->count();
         $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
         $finalizados = Incidencia::where('estado', 'Resuelto')->count();
         $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
 
+        // 3. Vista para usuarios de sucursal / gestores
+        if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
+            return view('ops.muro_sucursal', compact(
+                'sucursalesConPlacas',
+                'incidencias',
+                'pendientes', 
+                'enProceso', 
+                'finalizados', 
+                'alertasCombustible'
+            ));
+        }
+
+        // 4. Vista para el Administrador
         return view('ops.muro', compact(
             'incidencias', 
             'sucursalesConPlacas', 
@@ -55,19 +62,30 @@ class IncidenciaController extends Controller
             'sucursal' => 'required|string',
             'descripcion' => 'required|string',
             'urgencia' => 'required',
+            'fecha' => 'nullable|date',
+            'revisiones' => 'nullable|array',
+            'imagen_evidencia' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ]);
 
-        // 2. Guardamos la incidencia DIRECTO en tu base de datos de Railway
+        // 2. Procesamos la evidencia fotográfica si el usuario tomó/subió una foto
+        $rutaImagen = null;
+        if ($request->hasFile('imagen_evidencia')) {
+            $rutaImagen = $request->file('imagen_evidencia')->store('evidencias', 'public');
+        }
+
+        // 3. Guardamos la incidencia con sus revisiones (cheques) en la base de datos
         Incidencia::create([
             'sucursal' => $request->sucursal,
             'placa' => $request->placa, 
             'urgencia' => $request->urgencia,
             'descripcion' => $request->descripcion,
-            'estado' => 'Pendiente', // Estado por defecto
-            'imagen_evidencia' => null, 
+            'revisiones' => $request->input('revisiones', []),
+            'estado' => 'Pendiente',
+            'imagen_evidencia' => $rutaImagen,
+            'created_at' => $request->fecha ? Carbon::parse($request->fecha) : now(),
         ]);
 
-        // 3. Redireccionamos con el mensaje de éxito
+        // 4. Redireccionamos con el mensaje de éxito
         return back()->with('exito', 'Reporte publicado en el Muro de Operaciones y guardado en la Base de Datos.');
     }
 

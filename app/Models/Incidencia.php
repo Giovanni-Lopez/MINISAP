@@ -14,7 +14,12 @@ class Incidencia extends Model
         'placa',
         'urgencia',
         'descripcion',
+        'revisiones', // Permite asignación masiva de los cheques
         'estado',
         'imagen_evidencia'
+    ];
+
+    protected $casts = [
+        'revisiones' => 'array', // Convierte el campo JSON de la BD a Array en PHP
     ];
 }
