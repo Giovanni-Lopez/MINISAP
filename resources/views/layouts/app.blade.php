@@ -9,33 +9,36 @@
 </head>
 <body x-data="{ sidebarOpen: window.innerWidth >= 768 }" class="bg-gray-950 text-gray-100 font-sans min-h-screen flex flex-col m-0 p-0 relative">
 
-    <!-- NAVBAR SUPERIOR -->
     <nav class="bg-gray-900 border-b border-gray-800 px-4 md:px-6 py-4 shadow-xl flex justify-between items-center fixed top-0 w-full z-50 h-16">
-        <div class="flex items-center gap-3">
-            <!-- BOTÓN HAMBURGUESA GENERAL -->
-            <button @click="sidebarOpen = !sidebarOpen" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none cursor-pointer">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-            <img src="https://lh3.googleusercontent.com/d/1AlBG27NmFnim8krD4_bb1aUWEdSLUlB3" alt="Logo RENOSA" class="h-10 md:h-12 w-auto object-contain">    
-            
-            <!-- Etiqueta dinámica de rol -->
-            <span class="text-[10px] md:text-xs {{ Auth::user()->role === 'admin' ? 'bg-red-950 text-red-400' : 'bg-emerald-950 text-emerald-400' }} px-2.5 py-1 rounded font-mono font-bold whitespace-nowrap uppercase">
-                PORTAL {{ Auth::user()->role === 'admin' ? 'ADMIN' : (Auth::user()->role === 'coordinador' ? 'COORDINADOR' : 'GESTOR') }}
-            </span>
-        </div>
+    <div class="flex items-center gap-3">
+        <!-- BOTÓN HAMBURGUESA GENERAL -->
+        <button @click="sidebarOpen = !sidebarOpen" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none cursor-pointer">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        
+        <!-- LOGO RENOSA LOCAL -->
+        <img src="{{ asset('images/renosaLogo.png') }}" alt="Logo RENOSA" class="h-10 w-auto object-contain">
+        
+        <!-- Etiqueta dinámica de rol -->
+        <span class="text-[10px] md:text-xs {{ Auth::user()->role === 'admin' ? 'bg-red-950 text-red-400' : 'bg-emerald-950 text-emerald-400' }} px-2.5 py-1 rounded font-mono font-bold whitespace-nowrap uppercase">
+            PORTAL {{ Auth::user()->role === 'admin' ? 'ADMIN' : (Auth::user()->role === 'coordinador' ? 'COORDINADOR' : 'GESTOR') }}
+        </span>
+    </div>
 
-        <div class="flex items-center gap-2 md:gap-4">
-            <span class="text-xs md:text-sm font-medium text-gray-300 max-w-[120px] md:max-w-none truncate">
-                <i class="fa-solid fa-user {{ Auth::user()->role === 'admin' ? 'text-red-500' : 'text-emerald-500' }} mr-1"></i> {{ Auth::user()->name }}
-            </span>
-            <form action="{{ route('logout') }}" method="POST" class="m-0">
-                @csrf
-                <button type="submit" class="text-[11px] md:text-xs bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-2.5 py-1.5 rounded-lg border border-red-500/20 transition flex items-center gap-1 cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket"></i> <span class="hidden sm:inline">Salir</span>
-                </button>
-            </form>
-        </div>
-    </nav>
+    <div class="flex items-center gap-2 md:gap-4">
+        <span class="text-xs md:text-sm font-medium text-gray-300 max-w-[120px] md:max-w-none truncate">
+            <i class="fa-solid fa-user {{ Auth::user()->role === 'admin' ? 'text-red-500' : 'text-emerald-500' }} mr-1"></i> {{ Auth::user()->name }}
+        </span>
+        
+        <form action="{{ route('logout') }}" method="POST" class="m-0">
+            @csrf
+            <button type="submit" class="text-[11px] md:text-xs bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white px-2.5 py-1.5 rounded-lg border border-red-500/20 transition flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-right-from-bracket"></i> 
+                <span class="hidden sm:inline">Salir</span>
+            </button>
+        </form>
+    </div>
+</nav>
 
     <!-- OVERLAY OSCURO PARA PANTALLAS MÓVILES -->
     <div x-show="sidebarOpen" 

@@ -31,7 +31,7 @@
             <button id="btn-toggle-menu" class="text-gray-300 hover:text-white text-xl p-2 focus:outline-none md:hidden block cursor-pointer">
                 <i class="fa-solid fa-bars"></i>
             </button>
-            <img src="https://lh3.googleusercontent.com/d/1AlBG27NmFnim8krD4_bb1aUWEdSLUlB3" alt="Logo RENOSA" class="h-10 w-auto object-contain">                        
+            <img src="{{ asset('images/renosaLogo.png') }}" alt="Logo RENOSA" class="h-10 w-auto object-contain">                       
         </div>
         <span class="text-xs md:text-sm bg-gray-700 px-3 py-1 rounded-full text-gray-300 font-mono">Muro de Lamentos v1.0</span>
     </nav>
