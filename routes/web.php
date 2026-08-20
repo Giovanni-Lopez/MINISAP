@@ -1,61 +1,34 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\IncidenciaController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Http\Controllers\IncidenciaController;
 use App\Http\Controllers\VehiculoController;
 use App\Http\Controllers\CombustibleController;
 use App\Http\Controllers\ConductorController;
 use App\Http\Controllers\SucursalController;
 use App\Http\Controllers\AsignacionFlotaController;
 use App\Http\Controllers\KmDiarioController;
+use App\Http\Controllers\UserController;
 
-// Redirección automática: Si alguien entra a la raíz (/), mandarlo directamente al Login
+// Redirección inicial
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
 // ==========================================
-// RUTAS PROTEGIDAS (Requieren inicio de sesión)
+// RUTAS PÚBLICAS (Autenticación)
 // ==========================================
-Route::middleware('auth')->group(function () {
-    
-    // 1. Ruta para ENTRAR y ver el Muro de Lamentos
-    Route::get('/muro', [IncidenciaController::class, 'index'])->name('muro.index');
-
-    // 2. Ruta para RECIBIR los datos del formulario al dar click en "Publicar"
-    Route::post('/incidencias/store', [IncidenciaController::class, 'store']);
-    
-    // Asegúrate de que termine con ->name('incidencias.store')
-    Route::post('/incidencias/store', [IncidenciaController::class, 'store'])->name('incidencias.store');
-    
-    // 3. Ruta para Cerrar Sesión (¡Súper útil para la expo!)
-    Route::post('/logout', function (\Illuminate\Http\Request $request) {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
-    })->name('logout');
-
-});
-
-// ==========================================
-// RUTAS PÚBLICAS (Login)
-// ==========================================
-
-// Ruta para ver la pantalla de login
 Route::get('/login', function () {
     return view('auth.login');
 })->name('login');
 
-// Ruta para procesar el inicio de sesión en routes/web.php
-Route::post('/login', function (\Illuminate\Http\Request $request) {
+Route::post('/login', function (Request $request) {
     $credenciales = $request->only('email', 'password');
 
     if (Auth::attempt($credenciales)) {
         $request->session()->regenerate();
-        
-        // Redirección directa y forzada a la URL activa de Codespaces
         return redirect(url('/muro'));
     }
 
@@ -64,64 +37,73 @@ Route::post('/login', function (\Illuminate\Http\Request $request) {
     ])->onlyInput('email');
 });
 
-Route::middleware(['auth'])->group(function () {
-    // Rutas dinámicas para Gestión de Combustible
-    Route::get('/combustible', [CombustibleController::class, 'index'])->name('combustible.index');
-    Route::post('/combustible/store', [CombustibleController::class, 'store'])->name('combustible.store');
-});
 
-// Rutas para el Registro de Kilometraje Diario
-Route::get('/km-diarios', function () {
-    $sucursalesConPlacas = config('flota.sucursales', []);
-    return view('ops.km_sucursal', compact('sucursalesConPlacas'));
-})->middleware('auth');
+// ==========================================
+// RUTAS PROTEGIDAS (Requieren sesión activa)
+// ==========================================
+Route::middleware('auth')->group(function () {
 
-Route::post('/km-diarios/store', function (\Illuminate\Http\Request $request) {
-    return redirect()->back()->with('exito', '¡Registro de Kilometraje guardado con éxito!');
-})->name('km.store');
+    // Cerrar Sesión
+    Route::post('/logout', function (Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login');
+    })->name('logout');
 
-Route::post('/incidencias/{id}/actualizar', [App\Http\Controllers\IncidenciaController::class, 'update'])->name('incidencias.update');
+    // 1. Muro de Lamentos / Incidencias
+    Route::get('/muro', [IncidenciaController::class, 'index'])->name('muro.index');
+    Route::post('/incidencias/store', [IncidenciaController::class, 'store'])->name('incidencias.store');
+    Route::post('/incidencias/{id}/actualizar', [IncidenciaController::class, 'update'])->name('incidencias.update');
 
+    // 2. Cuentas de Acceso al Sistema (Login, Passwords y Roles)
+    Route::get('/gestion-usuarios', [UserController::class, 'index'])->name('gestion-usuarios.index');
+    Route::get('/gestion-usuarios/nuevo', [UserController::class, 'create'])->name('gestion-usuarios.create');
+    Route::post('/gestion-usuarios', [UserController::class, 'store'])->name('gestion-usuarios.store');
 
-Route::middleware(['auth'])->group(function () {
+    // 3. Cuentas de Acceso al Sistema (Solo Administradores)   
+    Route::middleware(['auth'])->group(function () {
+        Route::group(['middleware' => function ($request, $next) {
+            if (auth()->user()->role !== 'admin') {
+                return redirect('/muro')->with('error', 'No tienes permisos para acceder a este módulo.');
+            }
+            return $next($request);
+        }], function () {
+            Route::get('/gestion-usuarios', [UserController::class, 'index'])->name('gestion-usuarios.index');
+            Route::get('/gestion-usuarios/nuevo', [UserController::class, 'create'])->name('gestion-usuarios.create');
+            Route::post('/gestion-usuarios', [UserController::class, 'store'])->name('gestion-usuarios.store');
+            Route::put('/gestion-usuarios/{id}', [UserController::class, 'update'])->name('gestion-usuarios.update');
+            Route::delete('/gestion-usuarios/{id}', [UserController::class, 'destroy'])->name('gestion-usuarios.destroy');
+        });
+    });
+
+    // 4. Flota Vehicular
     Route::get('/flota', [VehiculoController::class, 'index'])->name('flota.index');
     Route::post('/flota', [VehiculoController::class, 'store'])->name('flota.store');
-
-    // Ruta agregada para activar/desactivar unidades
+    Route::put('/flota/update/{id}', [VehiculoController::class, 'update'])->name('flota.update');
     Route::patch('/flota/{vehiculo}/toggle-estado', [VehiculoController::class, 'toggleEstado'])->name('flota.toggle');
+    Route::delete('/flota/{vehiculo}', [VehiculoController::class, 'destroy'])->name('flota.destroy');
+
+    // 5. Control de Sucursales
+    Route::get('/sucursales', [SucursalController::class, 'index'])->name('sucursales.index');
+    Route::post('/sucursales/registrar', [SucursalController::class, 'store'])->name('sucursales.store');
+    Route::put('/sucursales/{id}', [SucursalController::class, 'update'])->name('sucursales.update');
+    Route::delete('/sucursales/{id}', [SucursalController::class, 'destroy'])->name('sucursales.destroy');
+
+    // 6. Asignaciones de Flota
+    Route::get('/asignaciones-flota', [AsignacionFlotaController::class, 'index'])->name('asignaciones.index');
+    Route::post('/asignaciones-flota', [AsignacionFlotaController::class, 'store'])->name('asignaciones.store');
+    Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::class, 'liberar'])->name('asignaciones.liberar');
+
+    // 7. Control de Combustible
+    Route::get('/combustible', [CombustibleController::class, 'index'])->name('combustible.index');
+    Route::post('/combustible/store', [CombustibleController::class, 'store'])->name('combustible.store');
+    Route::get('/historial-combustible', [CombustibleController::class, 'historial'])->name('combustible.historial');
+    Route::put('/combustible/{id}', [CombustibleController::class, 'update'])->name('combustible.update');
+    Route::delete('/combustible/{id}', [CombustibleController::class, 'destroy'])->name('combustible.destroy');
+
+    // 8. Registro de Kilometraje Diario
+    Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
+    Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');
+
 });
-
-//para actualizar registro de vehiculo
-Route::put('/flota/update/{id}', [VehiculoController::class, 'update'])->name('flota.update');
-
-//para eliminar de vehiculo
-Route::delete('/flota/{vehiculo}', [App\Http\Controllers\VehiculoController::class, 'destroy'])->name('flota.destroy');
-
-//para Control de Usuarios / Motoristas
-Route::get('/usuarios', [ConductorController::class, 'index'])->name('usuarios.index');
-Route::post('/usuarios/registrar', [ConductorController::class, 'store'])->name('usuarios.store');
-Route::put('/usuarios/{id}', [ConductorController::class, 'update'])->name('usuarios.update');
-Route::delete('/usuarios/{id}', [ConductorController::class, 'destroy'])->name('usuarios.destroy');
-
-
-// Rutas para Control de Sucursales
-Route::get('/sucursales', [SucursalController::class, 'index'])->name('sucursales.index');
-Route::post('/sucursales/registrar', [SucursalController::class, 'store'])->name('sucursales.store');
-Route::put('/sucursales/{id}', [SucursalController::class, 'update'])->name('sucursales.update');
-Route::delete('/sucursales/{id}', [SucursalController::class, 'destroy'])->name('sucursales.destroy');
-
-// Rutas para el control de asignaciones
-Route::get('/asignaciones-flota', [AsignacionFlotaController::class, 'index'])->name('asignaciones.index');
-Route::post('/asignaciones-flota', [AsignacionFlotaController::class, 'store'])->name('asignaciones.store');
-Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::class, 'liberar'])->name('asignaciones.liberar');
-
-//Ruta para el control de kilometrajes Diarios
-Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
-Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');
-
-//Ruta para que el controlar muestre una lista de datos ingresados
-Route::get('/historial-combustible', [CombustibleController::class, 'historial'])->name('combustible.historial');
-
-//Rutas para que el controlador edite e elimine un registro
-Route::put('/combustible/{id}', [CombustibleController::class, 'update'])->name('combustible.update');
-Route::delete('/combustible/{id}', [CombustibleController::class, 'destroy'])->name('combustible.destroy');

@@ -26,6 +26,12 @@
                 <div class="pt-4 mt-4 border-t border-gray-800/60 space-y-2">
                     <h4 class="text-[10px] uppercase tracking-wider text-gray-600 font-mono font-bold px-4 mb-1">Administración</h4>
 
+                    <!-- Cuentas del Sistema -->
+                    <a href="{{ route('gestion-usuarios.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('gestion-usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <i class="fa-solid fa-user-gear w-5 text-center text-lg"></i>
+                        <span>Usuarios Sistema</span>
+                    </a>
+
                     @if(Route::has('sucursales.index'))
                         <a href="{{ route('sucursales.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('sucursales*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                             <i class="fa-solid fa-shop w-5 text-center text-lg"></i>
@@ -45,9 +51,10 @@
                         <span>Asignaciones</span>
                     </a>
 
+                    <!-- Motoristas Operativos -->
                     <a href="/usuarios" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
-                        <i class="fa-solid fa-users-gear w-5 text-center text-lg"></i>
-                        <span>Conductores</span>
+                        <i class="fa-solid fa-id-card w-5 text-center text-lg"></i>
+                        <span>Motoristas</span>
                     </a>
 
                     <a href="{{ route('combustible.historial') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors {{ Request::is('historial*') ? 'bg-red-600 text-white shadow-lg shadow-red-900/20' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
