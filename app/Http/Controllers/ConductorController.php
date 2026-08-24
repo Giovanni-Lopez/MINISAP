@@ -11,8 +11,8 @@ class ConductorController extends Controller
     // Mostrar la lista de motoristas cargando sus licencias asociadas
     public function index()
     {
-        $usuarios = Conductor::with('licencias')->orderBy('created_at', 'desc')->get();
-        return view('ops.usuarios', compact('usuarios'));
+        $conductores  = Conductor::with('licencias')->orderBy('created_at', 'desc')->get();
+        return view('ops.conductores', compact('conductores'));
     }
 
     // Guardar nuevo motorista o añadir licencia a uno existente

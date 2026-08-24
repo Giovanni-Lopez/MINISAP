@@ -221,7 +221,7 @@
     </form>
 
     <script>
-        const todosLosUsuarios = @json($usuarios ?? []);
+        const todosLosUsuarios = @json($conductores ?? []);
 
         let usuariosFiltrados = [...todosLosUsuarios];
         let paginaActual = 1;
