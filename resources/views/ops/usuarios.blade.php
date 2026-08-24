@@ -64,14 +64,15 @@
                                 </div>
                             </div>
 
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm border-collapse table-fixed">
+                            <!-- Contenedor con scroll horizontal en móviles -->
+                            <div class="overflow-x-auto w-full">
+                                <table class="w-full text-left text-sm border-collapse min-w-[700px]">
                                     <thead>
                                         <tr class="border-b border-gray-700 text-xs font-mono text-gray-400 uppercase">
-                                            <th class="py-3 px-4 w-[25%]">Nombre Completo</th>
-                                            <th class="py-3 px-4 w-[15%]">DUI</th>
-                                            <th class="py-3 px-4 w-[40%]">Licencias Registradas</th>
-                                            <th class="py-3 px-4 text-left w-[20%]">Acciones</th>
+                                            <th class="py-3 px-4 w-1/4">Nombre Completo</th>
+                                            <th class="py-3 px-4 w-1/6">DUI</th>
+                                            <th class="py-3 px-4 w-5/12">Licencias Registradas</th>
+                                            <th class="py-3 px-4 text-left w-1/6">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabla-usuarios" class="divide-y divide-gray-700/50">
@@ -305,15 +306,21 @@
                         const hoy = new Date().toISOString().split('T')[0];
                         const estaVencida = lic.vence && fechaVenc < hoy;
 
+                        // Badge dinámico para estado VIGENTE / VENCIDA
+                        const badgeEstado = estaVencida 
+                            ? `<span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-red-950/80 text-red-400 border border-red-500/40 uppercase whitespace-nowrap">Vencida</span>`
+                            : `<span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 uppercase whitespace-nowrap">Vigente</span>`;
+
                         return `
-                            <div class="inline-flex items-center gap-1.5 bg-gray-900/90 px-2 py-1 rounded-md border border-gray-700/60 mr-1.5 mb-1.5 shadow-sm">
-                                <span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-500/10 text-red-400 border border-red-500/20 uppercase">
+                            <div class="inline-flex flex-wrap items-center gap-1.5 bg-gray-900/90 px-2 py-1.5 rounded-md border border-gray-700/60 mr-1.5 mb-1.5 shadow-sm max-w-full">
+                                <span class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-red-500/10 text-red-400 border border-red-500/20 uppercase whitespace-nowrap">
                                     ${lic.clase}
                                 </span>
-                                <span class="text-xs font-mono text-gray-300">${lic.no_licencia || 'S/N'}</span>
-                                <span class="text-[10px] font-mono ${estaVencida ? 'text-red-400 font-bold' : 'text-gray-400'}">
+                                <span class="text-xs font-mono text-gray-300 whitespace-nowrap">${lic.no_licencia || 'S/N'}</span>
+                                <span class="text-[10px] font-mono whitespace-nowrap ${estaVencida ? 'text-red-400 font-bold' : 'text-gray-400'}">
                                     (${fechaVenc})
                                 </span>
+                                ${badgeEstado}
                                 <button type="button" onclick="eliminarLicencia(${lic.id})" class="text-gray-500 hover:text-red-400 text-xs px-1 cursor-pointer transition" title="Eliminar solo esta licencia">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
@@ -323,24 +330,24 @@
                 }
 
                 fila.innerHTML = `
-                    <td class="py-3 px-4 font-semibold text-white">
+                    <td class="py-3 px-4 font-semibold text-white min-w-[150px]">
                         ${u.nombres} ${u.apellidos}
                     </td>
-                    <td class="py-3 px-4 font-mono text-xs text-gray-300">
+                    <td class="py-3 px-4 font-mono text-xs text-gray-300 whitespace-nowrap">
                         ${u.dui || 'N/A'}
                     </td>
-                    <td class="py-3 px-4">
+                    <td class="py-3 px-4 min-w-[260px]">
                         ${htmlLicencias}
                     </td>
-                    <td class="py-3 px-4">
+                    <td class="py-3 px-4 min-w-[140px]">
                         <div class="flex items-center justify-start gap-1.5 flex-wrap">
-                            <button type="button" onclick='abrirModalAgregarLicencia(${JSON.stringify(u)})' class="text-[11px] bg-emerald-950/40 hover:bg-emerald-700 text-emerald-400 hover:text-white px-2 py-1 rounded-lg border border-emerald-900/30 transition flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick='abrirModalAgregarLicencia(${JSON.stringify(u)})' class="text-[11px] bg-emerald-950/40 hover:bg-emerald-700 text-emerald-400 hover:text-white px-2 py-1 rounded-lg border border-emerald-900/30 transition flex items-center gap-1 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-plus text-[9px]"></i> Licencia
                             </button>
-                            <button type="button" onclick="abrirModalEditar(${u.id})" class="text-[11px] bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white px-2 py-1 rounded-lg border border-blue-500/20 transition flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick="abrirModalEditar(${u.id})" class="text-[11px] bg-blue-600/10 hover:bg-blue-600 text-blue-400 hover:text-white px-2 py-1 rounded-lg border border-blue-500/20 transition flex items-center gap-1 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-pen text-[9px]"></i> Editar
                             </button>
-                            <button type="button" onclick="eliminarConductor(${u.id})" class="text-[11px] bg-red-950/40 hover:bg-red-700 text-red-500 hover:text-white px-2 py-1 rounded-lg border border-red-900/30 transition flex items-center gap-1 cursor-pointer">
+                            <button type="button" onclick="eliminarConductor(${u.id})" class="text-[11px] bg-red-950/40 hover:bg-red-700 text-red-500 hover:text-white px-2 py-1 rounded-lg border border-red-900/30 transition flex items-center gap-1 cursor-pointer whitespace-nowrap">
                                 <i class="fa-solid fa-trash text-[9px]"></i>
                             </button>
                         </div>
