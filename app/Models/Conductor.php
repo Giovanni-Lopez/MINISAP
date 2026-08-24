@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Conductor extends Model
 {
@@ -15,18 +16,24 @@ class Conductor extends Model
         'nombres',
         'apellidos',
         'dui',
-        'no_licencia',
-        'clase',
-        'vence',
         'activo'
     ];
 
-    // Cast opcional para manejar la fecha como objeto Carbon si lo necesitas después
     protected $casts = [
-        'vence' => 'date',
         'activo' => 'boolean'
     ];
 
+    /**
+     * Un conductor posee múltiples licencias (Particular, Motocicleta, Pesada, etc.)
+     */
+    public function licencias(): HasMany
+    {
+        return $this->hasMany(Licencia::class, 'conductor_id');
+    }
+
+    /**
+     * Relación existente con asignaciones de vehículos
+     */
     public function asignaciones(): HasMany
     {
         return $this->hasMany(Asignacion::class, 'conductor_id');

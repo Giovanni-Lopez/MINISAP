@@ -52,7 +52,7 @@
                     </a>
 
                     <!-- Motoristas Operativos -->
-                    <a href="/usuarios" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('usuarios*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                    <a href="{{ route('conductores.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition {{ Request::is('conductores*') ? 'bg-red-600 text-white shadow-lg shadow-red-950/50' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
                         <i class="fa-solid fa-id-card w-5 text-center text-lg"></i>
                         <span>Motoristas</span>
                     </a>
