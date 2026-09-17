@@ -21,5 +21,10 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        // Agrega esta línea para que llame a tu seeder de vehículos
+        $this->call([
+            VehiculoSeeder::class,
+        ]);
     }
 }

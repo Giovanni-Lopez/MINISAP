@@ -779,8 +779,8 @@ class VehiculoSeeder extends Seeder
 
         foreach ($vehiculos as $vehiculo) {
             DB::table('vehiculos')->updateOrInsert(
-                ['placa' => $vehiculo['placa']], // Busca si la placa ya existe
-                $vehiculo                         // Si existe lo actualiza, si no, lo inserta
+                ['placa' => $vehiculo['placa']],
+                $vehiculo
             );
         }
     }

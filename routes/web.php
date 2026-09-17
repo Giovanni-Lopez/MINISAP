@@ -58,7 +58,7 @@ Route::middleware('auth')->group(function () {
     // 1. Muro de Lamentos / Incidencias
     Route::get('/muro', [IncidenciaController::class, 'index'])->name('muro.index');
     Route::post('/incidencias/store', [IncidenciaController::class, 'store'])->name('incidencias.store');
-    Route::post('/incidencias/{id}/actualizar', [IncidenciaController::class, 'update'])->name('incidencias.update');
+    Route::match(['post', 'put'], '/incidencias/{id}/actualizar', [IncidenciaController::class, 'update'])->name('incidencias.update');
 
     // 2. Cuentas de Acceso al Sistema (Solo Administradores)
     Route::group(['middleware' => function ($request, $next) {

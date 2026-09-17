@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Incidencia; 
 use Carbon\Carbon;
+use App\Notifications\IncidenciaResuelta;
+use Illuminate\Support\Facades\Notification;
 
 class IncidenciaController extends Controller
 {
@@ -29,7 +31,7 @@ class IncidenciaController extends Controller
         $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
         $pendientes = Incidencia::where('estado', 'Pendiente')->count();
         $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
-        $finalizados = Incidencia::where('estado', 'Resuelto')->count();
+        $finalizados = Incidencia::whereIn('estado', ['Resuelto', 'RESUELTO'])->count();
         $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
 
         // 3. Vista para usuarios de sucursal / gestores
@@ -73,8 +75,9 @@ class IncidenciaController extends Controller
             $rutaImagen = $request->file('imagen_evidencia')->store('evidencias', 'public');
         }
 
-        // 3. Guardamos la incidencia con sus revisiones (cheques) en la base de datos
+        // 3. Guardamos la incidencia asociando el ID del usuario autenticado
         Incidencia::create([
+            'user_id' => auth()->id(), // Se asigna el usuario que crea el reporte
             'sucursal' => $request->sucursal,
             'placa' => $request->placa, 
             'urgencia' => $request->urgencia,
@@ -92,19 +95,36 @@ class IncidenciaController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'estado' => 'required|in:Pendiente,En Revisión,Resuelto',
+            'estado' => 'required|string',
             'comentarios' => 'nullable|string|max:1000'
         ]);
 
         $incidencia = Incidencia::findOrFail($id);
-        $incidencia->estado = $request->estado;
+        $estadoAnterior = $incidencia->estado;
         
-        if (\Schema::hasColumn('incidencias', 'comentarios')) {
+        // Normalizamos y guardamos el estado
+        $incidencia->estado = $request->estado;
+
+        // Actualiza comentarios SOLAMENTE si se envió un texto nuevo en la petición
+        if (\Schema::hasColumn('incidencias', 'comentarios') && $request->filled('comentarios')) {
             $incidencia->comentarios = $request->comentarios;
         }
 
         $incidencia->save();
 
-        return redirect()->back()->with('success', '¡Registro actualizado con éxito!');
+        // Enviar notificación por correo si cambia a Resuelto
+        if ($request->estado === 'Resuelto' && $estadoAnterior !== 'Resuelto') {
+            
+            // 1. Enviar al usuario emisor del reporte
+            if ($incidencia->user && $incidencia->user->email) {
+                $incidencia->user->notify(new IncidenciaResuelta($incidencia));
+            }
+
+            // 2. Enviar a la cuenta central de operaciones
+            Notification::route('mail', 'auxope.renosa@gmail.com')
+                ->notify(new IncidenciaResuelta($incidencia));
+        }
+
+        return redirect()->back()->with('success', '¡Estado actualizado correctamente!');
     }
 }

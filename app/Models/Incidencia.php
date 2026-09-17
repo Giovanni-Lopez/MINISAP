@@ -10,6 +10,7 @@ class Incidencia extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id', // Permite guardar el ID del usuario emisor
         'sucursal',
         'placa',
         'urgencia',
@@ -22,4 +23,12 @@ class Incidencia extends Model
     protected $casts = [
         'revisiones' => 'array', // Convierte el campo JSON de la BD a Array en PHP
     ];
+
+    /**
+     * Relación con el usuario que creó la incidencia
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
