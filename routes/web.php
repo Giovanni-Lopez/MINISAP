@@ -59,6 +59,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/muro', [IncidenciaController::class, 'index'])->name('muro.index');
     Route::post('/incidencias/store', [IncidenciaController::class, 'store'])->name('incidencias.store');
     Route::match(['post', 'put'], '/incidencias/{id}/actualizar', [IncidenciaController::class, 'update'])->name('incidencias.update');
+    
+    // Centro de Historial General unificado por pestañas
+    Route::get('/incidencias/historial/{tipo?}', [IncidenciaController::class, 'historialGeneral'])->name('incidencias.historial');
 
     // 2. Cuentas de Acceso al Sistema (Solo Administradores)
     Route::group(['middleware' => function ($request, $next) {
@@ -99,7 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/asignaciones-flota', [AsignacionFlotaController::class, 'store'])->name('asignaciones.store');
     Route::post('/asignaciones-flota/liberar/{id}', [AsignacionFlotaController::class, 'liberar'])->name('asignaciones.liberar');
 
-    // 6. Control de Combustible
+    // 6. Control de Combustible (Mantiene tu vista de historial_combustible intacta)
     Route::get('/combustible', [CombustibleController::class, 'index'])->name('combustible.index');
     Route::post('/combustible/store', [CombustibleController::class, 'store'])->name('combustible.store');
     Route::get('/historial-combustible', [CombustibleController::class, 'historial'])->name('combustible.historial');

@@ -6,20 +6,19 @@
     <title>RENOSA - Muro de Lamentos Operativo</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        /* Estilizar barra de scroll para el feed */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: #111827; /* bg-gray-900 */
+            background: #111827;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #374151; /* bg-gray-700 */
+            background: #374151;
             border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #00ff62a6; /* Verde/Rojo RENOSA para el hover */
+            background: #00ff62a6;
         }
     </style>
 </head>
@@ -59,7 +58,7 @@
                     </div>
                      
                     <!-- Feed de Incidencias -->
-                    <div class="lg:col-span-2 space-y-4">
+                    <div class="lg:col-span-3 space-y-4">
                         <h2 class="text-base md:text-lg font-bold flex items-center gap-2 text-white mb-2">
                             <i class="fa-solid fa-list-timeline text-gray-400"></i> Feed Operativo Reciente
                         </h2>
@@ -70,118 +69,134 @@
                             </div>
                         @endif
 
-                        <!-- Contenedor del Feed con altura máxima fija y scroll interno -->
-                        <div class="space-y-4 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
-                            @forelse($incidencias as $incidencia)
-                                @php
-                                    $borderColor = 'border-gray-700';
-                                    $badgeColor = 'bg-gray-700 text-gray-300';
-                                    $urgenciaLower = strtolower($incidencia->urgencia);
+                        <!-- Contenedor del Feed -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[calc(100vh-240px)] overflow-y-auto pr-2 custom-scrollbar">
+                            <?php if(isset($incidencias) && count($incidencias) > 0): ?>
+                                <?php foreach($incidencias as$incidencia): ?>
+                                    <?php
+                                        $borderColor = 'border-gray-700';$badgeColor = 'bg-gray-700 text-gray-300';
+                                        $urgenciaLower = strtolower($incidencia->urgencia ?? '');
 
-                                    if(in_array($urgenciaLower, ['alta', 'alto'])) { 
-                                        $borderColor = 'border-orange-500'; 
-                                        $badgeColor = 'bg-orange-950 text-orange-400 border border-orange-800'; 
-                                    }
-                                    if(in_array($urgenciaLower, ['crítica', 'critica', 'crítico', 'critico'])) { 
-                                        $borderColor = 'border-red-500 animate-pulse'; 
-                                        $badgeColor = 'bg-red-950 text-red-400 border border-red-800'; 
-                                    }
-                                    if(in_array($urgenciaLower, ['baja', 'bajo'])) { 
-                                        $borderColor = 'border-emerald-700'; 
-                                        $badgeColor = 'bg-emerald-950 text-emerald-400'; 
-                                    }
+                                        if(in_array($urgenciaLower, ['alta', 'alto'])) { 
+                                            $borderColor = 'border-orange-500';$badgeColor = 'bg-orange-950 text-orange-400 border border-orange-800'; 
+                                        }
+                                        if(in_array($urgenciaLower, ['crítica', 'critica', 'crítico', 'critico'])) { 
+                                            $borderColor = 'border-red-500 animate-pulse';$badgeColor = 'bg-red-950 text-red-400 border border-red-800'; 
+                                        }
+                                        if(in_array($urgenciaLower, ['baja', 'bajo'])) { 
+                                            $borderColor = 'border-emerald-700';$badgeColor = 'bg-emerald-950 text-emerald-400'; 
+                                        }
 
-                                    $estadoActual = $incidencia->estado ?? 'Pendiente';
-                                    $estadoClass = 'bg-red-950 text-red-400 border border-red-800';
-                                    if($estadoActual === 'En Revisión') {
-                                        $estadoClass = 'bg-amber-950 text-amber-400 border border-amber-800';
-                                    } elseif($estadoActual === 'Resuelto') {
-                                        $estadoClass = 'bg-emerald-950 text-emerald-400 border border-emerald-800';
-                                    }
-                                @endphp
+                                        $estadoActual =$incidencia->estado ?? 'Pendiente';
+                                        $estadoClass = 'bg-red-950 text-red-400 border border-red-800';
+                                        if($estadoActual === 'En Revisión') {
+                                            $estadoClass = 'bg-amber-950 text-amber-400 border border-amber-800';
+                                        } elseif($estadoActual === 'Resuelto') {$estadoClass = 'bg-emerald-950 text-emerald-400 border border-emerald-800';
+                                        }
 
-                                <div class="bg-gray-800 p-4 md:p-5 rounded-xl border-l-8 {{ $borderColor }} shadow-md flex flex-col gap-3">
-                                    <div class="flex justify-between items-start gap-2">
-                                        <div class="flex items-center gap-3 flex-wrap">
-                                            <div>
-                                                <span class="text-[10px] uppercase font-mono tracking-wider text-gray-400 block">Sucursal</span>
-                                                <h3 class="text-sm md:text-base font-bold text-white">
-                                                    <i class="fa-solid fa-location-dot text-red-500 mr-1"></i> {{ $incidencia->sucursal }}
-                                                </h3>
+                                        $revs =$incidencia->revisiones;
+                                        if (is_string($revs)) {
+                                            $revs = json_decode($revs, true) ?? [];
+                                        }
+                                        $puntosRevision = is_array($revs) ?$revs : [];
+                                    ?>
+
+                                    <div class="bg-gray-800 p-4 md:p-5 rounded-xl border-l-8 {{ $borderColor }} shadow-md flex flex-col justify-between gap-3">
+                                        <div class="space-y-3">
+                                            <div class="flex justify-between items-start gap-2">
+                                                <div class="flex items-center gap-3 flex-wrap">
+                                                    <div>
+                                                        <span class="text-[10px] uppercase font-mono tracking-wider text-gray-400 block">Sucursal</span>
+                                                        <h3 class="text-sm md:text-base font-bold text-white">
+                                                            <i class="fa-solid fa-location-dot text-red-500 mr-1"></i> {{ $incidencia->sucursal }}
+                                                        </h3>
+                                                    </div>
+                                                    
+                                                    @if(!empty($incidencia->placa))
+                                                        <div class="pt-1">
+                                                            <span class="px-2.5 py-1 text-xs font-mono font-bold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                                                <i class="fa-solid fa-truck mr-1.5"></i> {{ $incidencia->placa }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+
+                                                    <div class="pt-1">
+                                                        <span class="px-2.5 py-1 text-xs font-mono font-medium rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center gap-1.5">
+                                                            <i class="fa-solid fa-user text-[10px]"></i> {{ $incidencia->user->name ?? 'Usuario Sistema' }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
+                                                    <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $badgeColor }}">{{ $incidencia->urgencia }}</span>
+                                                    
+                                                    <form action="/incidencias/{{ $incidencia->id }}/actualizar" method="POST" class="inline">
+                                                        @csrf
+                                                        <select name="estado" onchange="this.form.submit()" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $estadoClass }} bg-gray-950/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500">
+                                                            <option value="Pendiente" {{ $estadoActual == 'Pendiente' ? 'selected' : '' }}>🔴 Pendiente</option>
+                                                            <option value="En Revisión" {{ $estadoActual == 'En Revisión' ? 'selected' : '' }}>🟡 En Proceso</option>
+                                                            <option value="Resuelto" {{ $estadoActual == 'Resuelto' ? 'selected' : '' }}>🟢 Resuelto</option>
+                                                        </select>
+                                                    </form>
+                                                </div>
                                             </div>
-                                            
-                                            @if(!empty($incidencia->placa))
-                                                <div class="pt-1">
-                                                    <span class="px-2.5 py-1 text-xs font-mono font-bold rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                                        <i class="fa-solid fa-truck mr-1.5"></i> {{ $incidencia->placa }}
+
+                                            {{-- REVISIONES / CHECKLIST GUARDADO --}}
+                                            <?php if(count($puntosRevision) > 0): ?>
+                                                <div class="flex flex-wrap gap-1.5 my-1">
+                                                    <?php foreach($puntosRevision as$punto): ?>
+                                                        <span class="text-[11px] bg-gray-900/90 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5 shadow-xs">
+                                                            <i class="fa-solid fa-square-check text-emerald-500 text-xs"></i> <?= e($punto) ?>
+                                                        </span>
+                                                    <?php endforeach; ?>
+                                                </div>
+                                            <?php endif; ?>
+
+                                            {{-- DESCRIPCIÓN --}}
+                                            <p class="text-sm text-gray-300 leading-relaxed bg-gray-900/40 p-3 rounded-lg border border-gray-700/50 break-words">
+                                                {{ $incidencia->descripcion }}
+                                            </p>
+
+                                            @if(!empty($incidencia->comentarios))
+                                                <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-1">
+                                                    <span class="text-[9px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                                                        <i class="fa-solid fa-wrench text-[10px]"></i> Notas de Resolución / Bitácora:
                                                     </span>
+                                                    <p class="text-xs text-gray-300 italic break-words">
+                                                        {{ $incidencia->comentarios }}
+                                                    </p>
+                                                </div>
+                                            @endif
+
+                                            @if($incidencia->imagen_evidencia)
+                                                <div class="w-full max-h-60 rounded-lg overflow-hidden border border-gray-700">
+                                                    <img src="{{ asset('storage/' . $incidencia->imagen_evidencia) }}" class="w-full h-full object-cover" alt="Evidencia">
                                                 </div>
                                             @endif
                                         </div>
-                                        
-                                        <div class="flex flex-col sm:flex-row items-end sm:items-center gap-1.5 shrink-0">
-                                            <span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $badgeColor }}">{{ $incidencia->urgencia }}</span>
-                                            
-                                            <form action="{{ route('incidencias.update', $incidencia->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                <select name="estado" onchange="this.form.submit()" class="text-[10px] px-2 py-0.5 rounded font-bold uppercase {{ $estadoClass }} bg-gray-950/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-red-500">
-                                                    <option value="Pendiente" {{ $estadoActual == 'Pendiente' ? 'selected' : '' }}>🔴 Pendiente</option>
-                                                    <option value="En Revisión" {{ $estadoActual == 'En Revisión' ? 'selected' : '' }}>🟡 En Proceso</option>
-                                                    <option value="Resuelto" {{ $estadoActual == 'Resuelto' ? 'selected' : '' }}>🟢 Resuelto</option>
-                                                </select>
-                                            </form>
-                                        </div>
-                                    </div>
 
-                                    {{-- REVISIONES / CHECKLIST GUARDADO --}}
-                                    @if(!empty($incidencia->revisiones) && is_array($incidencia->revisiones) && count($incidencia->revisiones) > 0)
-                                        <div class="flex flex-wrap gap-1.5 my-1">
-                                            @foreach($incidencia->revisiones as $punto)
-                                                <span class="text-[11px] bg-gray-900/90 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5 shadow-xs">
-                                                    <i class="fa-solid fa-square-check text-emerald-500 text-xs"></i> {{ $punto }}
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @endif
-
-                                    {{-- DESCRIPCIÓN --}}
-                                    <p class="text-sm text-gray-300 leading-relaxed bg-gray-900/40 p-3 rounded-lg border border-gray-700/50 break-words">
-                                        {{ $incidencia->descripcion }}
-                                    </p>
-
-                                    @if(!empty($incidencia->comentarios))
-                                        <div class="bg-emerald-950/20 border border-emerald-500/20 p-3 rounded-lg flex flex-col gap-1 mt-1">
-                                            <span class="text-[9px] font-mono uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                                                <i class="fa-solid fa-wrench text-[10px]"></i> Notas de Resolución / Bitácora:
+                                        {{-- BARRA INFERIOR --}}
+                                        <div class="text-[11px] text-gray-500 flex justify-between items-center border-t border-gray-700/50 pt-3 font-mono mt-2">
+                                            <span>
+                                                ID: #00{{ $incidencia->id }} | 
+                                                <i class="fa-regular fa-clock mr-1"></i> {{ $incidencia->created_at ? $incidencia->created_at->diffForHumans() : 'N/A' }} | 
+                                                <i class="fa-solid fa-user-pen mr-1"></i> {{ $incidencia->user->name ?? 'Usuario Sistema' }}
                                             </span>
-                                            <p class="text-xs text-gray-300 italic break-words">
-                                                {{ $incidencia->comentarios }}
-                                            </p>
+                                            
+                                            <button type="button" 
+                                                onclick="abrirModalGestion({{ json_encode($incidencia) }})"
+                                                class="px-3 py-1 bg-gray-900 border border-gray-700 hover:border-blue-500 hover:text-white text-gray-400 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer">
+                                                <i class="fa-solid fa-sliders text-[9px]"></i> Gestionar / Notas
+                                            </button>
                                         </div>
-                                    @endif
-
-                                    @if($incidencia->imagen_evidencia)
-                                        <div class="w-full max-h-60 rounded-lg overflow-hidden border border-gray-700">
-                                            <img src="{{ asset('storage/' . $incidencia->imagen_evidencia) }}" class="w-full h-full object-cover" alt="Evidencia">
-                                        </div>
-                                    @endif
-
-                                    <div class="text-[11px] text-gray-500 flex justify-between items-center border-t border-gray-700/50 pt-3 font-mono">
-                                        <span>ID: #00{{ $incidencia->id }} | <i class="fa-regular fa-clock mr-1"></i> {{ $incidencia->created_at->diffForHumans() }}</span>
-                                        
-                                        <button type="button" 
-                                            onclick="abrirModalGestion({{ json_encode($incidencia) }})"
-                                            class="px-3 py-1 bg-gray-900 border border-gray-700 hover:border-blue-500 hover:text-white text-gray-400 rounded-lg text-[10px] font-bold flex items-center gap-1 transition-all cursor-pointer">
-                                            <i class="fa-solid fa-sliders text-[9px]"></i> Gestionar / Notas
-                                        </button>
                                     </div>
-                                </div>
-                            @empty
-                                <div class="bg-gray-800 p-8 md:p-12 rounded-xl text-center border border-gray-700 border-dashed text-gray-500">
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <div class="col-span-full bg-gray-800 p-8 md:p-12 rounded-xl text-center border border-gray-700 border-dashed text-gray-500">
                                     <i class="fa-solid fa-circle-nodes text-3xl mb-3 text-gray-600"></i>
                                     <p class="text-sm">No hay lamentos registrados hoy. Operación en orden.</p>
                                 </div>
-                            @endforelse
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -244,7 +259,6 @@
 
     <!-- SCRIPTS DE CONTROL -->
     <script>
-        // Lógica del Menú Desplegable Móvil
         const btnToggleMenu = document.getElementById('btn-toggle-menu');
         const sidebar = document.getElementById('sidebar-container');
         const overlay = document.getElementById('sidebar-overlay');
@@ -267,7 +281,6 @@
             overlay.addEventListener('click', toggleMenuMovil);
         }
 
-        // Lógica de Sucursales y Placas Dinámicas
         const placasPorSucursal = @json($sucursalesConPlacas ?? []);
         const selectSucursal = document.querySelector('select[name="sucursal"]');
         const selectPlaca = document.getElementById('select-placa');
@@ -292,7 +305,6 @@
             });
         }
 
-        // Lógica del Modal
         function abrirModalGestion(incidencia) {
             const modal = document.getElementById('modalGestion');
             

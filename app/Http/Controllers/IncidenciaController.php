@@ -10,8 +10,11 @@ use Illuminate\Support\Facades\Notification;
 
 class IncidenciaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Capturamos el filtro seleccionado de la URL (por defecto 'activas')
+        $filtro = $request->get('filtro', 'activas');
+
         // 1. Cargar sucursales con vehículos activos
         $sucursales = \App\Models\Sucursal::with(['vehiculos' => function($q) {
             $q->where('activo', true);
@@ -27,14 +30,27 @@ class IncidenciaController extends Controller
             })->toArray();
         }
 
-        // 2. Datos generales (incidencias y métricas)
-        $incidencias = Incidencia::orderBy('created_at', 'desc')->get();
+        // 2. Métricas generales (se mantienen globales para todos los contadores superiores)
         $pendientes = Incidencia::where('estado', 'Pendiente')->count();
         $enProceso = Incidencia::where('estado', 'En Revisión')->count(); 
         $finalizados = Incidencia::whereIn('estado', ['Resuelto', 'RESUELTO'])->count();
         $alertasCombustible = Incidencia::where('urgencia', 'Crítica')->count();
 
-        // 3. Vista para usuarios de sucursal / gestores
+        // 3. Consulta de incidencias para el Feed (filtradas por pestaña activa)
+        $query = Incidencia::with('user');
+
+        if ($filtro === 'resueltas') {
+            $query->whereIn('estado', ['Resuelto', 'RESUELTO']);
+        } elseif ($filtro === 'todas') {
+            // Muestra todas sin filtro de estado
+        } else {
+            // Por defecto: Solo Pendientes y En Revisión
+            $query->whereIn('estado', ['Pendiente', 'En Revisión']);
+        }
+
+        $incidencias = $query->orderBy('created_at', 'desc')->get();
+
+        // 4. Vista para usuarios de sucursal / gestores
         if (in_array(auth()->user()->role, ['user', 'gestor', 'sucursal', 'coordinador'])) {
             return view('ops.muro_sucursal', compact(
                 'sucursalesConPlacas',
@@ -42,18 +58,20 @@ class IncidenciaController extends Controller
                 'pendientes', 
                 'enProceso', 
                 'finalizados', 
-                'alertasCombustible'
+                'alertasCombustible',
+                'filtro'
             ));
         }
 
-        // 4. Vista para el Administrador
+        // 5. Vista para el Administrador
         return view('ops.muro', compact(
             'incidencias', 
             'sucursalesConPlacas', 
             'pendientes', 
             'enProceso', 
             'finalizados', 
-            'alertasCombustible'
+            'alertasCombustible',
+            'filtro'
         ));
     }
 
@@ -126,5 +144,21 @@ class IncidenciaController extends Controller
         }
 
         return redirect()->back()->with('success', '¡Estado actualizado correctamente!');
+    }
+
+    public function historialGeneral($tipo = 'combustible')
+    {
+        $datos = collect();
+
+        if ($tipo === 'combustible') {
+            // Apuntamos al modelo correcto que se ve en tu carpeta Models
+            $datos = \App\Models\RegistroCombustible::orderBy('fecha', 'desc')->paginate(15);
+        } elseif ($tipo === 'kilometraje') {
+            $datos = \App\Models\KmDiario::orderBy('created_at', 'desc')->paginate(15);
+        } elseif ($tipo === 'revisiones') {
+            $datos = \App\Models\Incidencia::where('estado', 'Resuelto')->orderBy('updated_at', 'desc')->paginate(15);
+        }
+
+        return view('ops.historial', compact('datos', 'tipo'));
     }
 }
