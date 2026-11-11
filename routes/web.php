@@ -112,6 +112,7 @@ Route::middleware('auth')->group(function () {
     // 7. Registro de Kilometraje Diario
     Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
     Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');    
+    Route::delete('/km-diarios/{id}', [KmDiarioController::class, 'destroy'])->name('km.destroy');
 
     Route::delete('/licencias/{id}', [LicenciaController::class, 'destroy'])->name('licencias.destroy');
 

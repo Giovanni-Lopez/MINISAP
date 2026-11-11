@@ -49,4 +49,12 @@ class KmDiarioController extends Controller
 
         return redirect()->back()->with('exito', '¡Registro de Kilometraje guardado con éxito!');
     }
+
+    public function destroy($id)
+    {
+        $km = \App\Models\KmDiario::findOrFail($id);
+        $km->delete();
+
+        return back()->with('success', '¡Registro de kilometraje eliminado correctamente!');
+    }
 }

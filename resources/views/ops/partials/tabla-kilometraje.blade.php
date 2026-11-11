@@ -19,12 +19,24 @@
                     <td class="px-4 py-3">{{ $row->motorista ?? ($row->conductor->nombre ?? 'N/D') }}</td>
                     <td class="px-4 py-3 font-mono text-xs text-gray-400">{{ number_format($row->km_inicial ?? 0) }} km</td>
                     <td class="px-4 py-3 font-mono text-xs text-gray-400">{{ number_format($row->km_final ?? 0) }} km</td>
-                    <td class="px-4 py-3 text-emerald-400 font-bold text-right font-mono">{{ number_format(($row->km_final ?? 0) - ($row->km_inicial ?? 0)) }} km</td>
+                    <td class="px-4 py-3 text-emerald-400 font-bold text-right font-mono whitespace-nowrap">
+                        {{ number_format(($row->total_recorrido ?? (($row->km_final ?? 0) - ($row->km_inicial ?? 0))), 0) }} km
+                    </td>
                     <td class="px-4 py-3 text-center whitespace-nowrap">
                         <div class="flex items-center justify-center gap-2">
-                            <button type="button" onclick="abrirModalKm({{ json_encode($row) }})" class="text-blue-400 hover:text-blue-300 p-1.5 bg-blue-950/50 hover:bg-blue-900 border border-blue-800 rounded-lg transition" title="Editar KM Final">
+                            {{-- Botón Editar KM Final --}}
+                            <button type="button" onclick="abrirModalKm({{ json_encode($row) }})" class="text-blue-400 hover:text-blue-300 p-1.5 bg-blue-950/50 hover:bg-blue-900 border border-blue-800 rounded-lg transition" title="Actualizar KM Final">
                                 <i class="fa-solid fa-pen-to-square"></i>
                             </button>
+
+                            {{-- Botón Eliminar Registro --}}
+                            <form action="{{ route('km.destroy', $row->id) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este registro de kilometraje?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-400 hover:text-red-300 p-1.5 bg-red-950/50 hover:bg-red-900 border border-red-800 rounded-lg transition" title="Eliminar Registro">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -69,7 +81,6 @@
             <div>
                 <label class="block text-[11px] font-medium text-gray-400 mb-1">KM Inicial (Bloqueado por seguridad)</label>
                 <input type="number" id="km_inicial" name="km_inicial" readonly class="w-full bg-gray-800/40 border border-gray-700/60 text-gray-400 rounded-xl p-2 text-xs cursor-not-allowed font-mono">
-                <span class="text-[10px] text-gray-500 mt-0.5 block">Este valor ya fue fijado al iniciar el recorrido.</span>
             </div>
 
             <div>
