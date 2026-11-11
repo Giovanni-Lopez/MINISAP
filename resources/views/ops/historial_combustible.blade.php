@@ -25,7 +25,7 @@
 
 {{-- VISTA CELULAR (Solo visible en pantallas < 1024px) --}}
 <div class="space-y-3 block lg:hidden"> 
-    @forelse($registros as$row)
+    @forelse($registros as $row)
         <div class="bg-gray-800/80 border border-gray-700/60 rounded-xl p-4 shadow-md">
             <div class="flex justify-between items-start mb-3 border-b border-gray-700/50 pb-2">
                 <div>
@@ -104,7 +104,7 @@
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
-            @forelse($registros as$row)
+            @forelse($registros as $row)
                 <tr class="hover:bg-gray-800/50 transition">
                     <td class="px-4 py-3 text-gray-400 font-mono text-xs whitespace-nowrap">{{ $row->fecha }}</td>
                     <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">{{ $row->sucursal }}</td>
