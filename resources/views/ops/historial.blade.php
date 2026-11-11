@@ -1,10 +1,10 @@
-@extends('layouts.app') {{-- O el layout principal que utilices en tu proyecto --}}
+@extends('layouts.app')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     
     {{-- Tarjeta Principal --}}
-    <div class="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl p-6">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl shadow-xl p-6 min-h-[500px]">
         
         {{-- Encabezado del Módulo --}}
         <div class="mb-6">
@@ -32,16 +32,16 @@
             </a>
         </div>
 
-        {{-- Contenido Dinámico según la Pestaña Seleccionada --}}
-        <div>
+        {{-- Contenido Dinámico con respaldo visual garantizado --}}
+        <div class="text-gray-300">
             @if(($tipo ?? 'combustible') === 'combustible')
-                @include('ops.historial_combustible', ['registros' => $datos])
+                @include('ops.historial_combustible', ['registros' => $datos ?? collect()])
             @elseif(($tipo ?? '') === 'kilometraje')
-                @include('ops.partials.tabla-kilometraje', ['datos' => $datos])
+                @include('ops.partials.tabla-kilometraje', ['datos' => $datos ?? collect()])
             @elseif(($tipo ?? '') === 'revisiones')
-                @include('ops.partials.tabla-revisiones', ['datos' => $datos])
+                @include('ops.partials.tabla-revisiones', ['datos' => $datos ?? collect()])
             @else
-                @include('ops.historial_combustible', ['registros' => $datos])
+                @include('ops.historial_combustible', ['registros' => $datos ?? collect()])
             @endif
         </div>
 
