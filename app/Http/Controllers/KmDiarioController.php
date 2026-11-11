@@ -57,4 +57,23 @@ class KmDiarioController extends Controller
 
         return back()->with('success', '¡Registro de kilometraje eliminado correctamente!');
     }
+
+    public function obtenerUltimoKm($placa)
+    {
+        $ultimo = \App\Models\KmDiario::where('placa', $placa)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+        if ($ultimo && $ultimo->km_final) {
+            return response()->json([
+                'existe' => true,
+                'km_inicial' => $ultimo->km_final
+            ]);
+        }
+
+        return response()->json([
+            'existe' => false,
+            'km_inicial' => null
+        ]);
+    }
 }

@@ -113,6 +113,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/km-diarios', [KmDiarioController::class, 'index'])->name('km.index');
     Route::post('/km-diarios', [KmDiarioController::class, 'store'])->name('km.store');    
     Route::delete('/km-diarios/{id}', [KmDiarioController::class, 'destroy'])->name('km.destroy');
+    Route::get('/api/vehiculo/{placa}/ultimo-km', [KmDiarioController::class, 'obtenerUltimoKm']);
 
     Route::delete('/licencias/{id}', [LicenciaController::class, 'destroy'])->name('licencias.destroy');
 

@@ -44,12 +44,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">3. Kilometraje Inicial (Salida) *</label>
-                    <input type="number" id="km-inicial" name="km_inicial" placeholder="Lectura al iniciar el día" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner">
+                    <input type="number" id="km-inicial" name="km_inicial" placeholder="Lectura al iniciar el día" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner font-mono">
+                    <span id="km-inicial-aviso" class="text-[10px] text-gray-500 mt-1 block hidden">🔒 Autocompletado con el último registro de la unidad.</span>
                 </div>
 
                 <div>
                     <label class="block text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">4. Kilometraje Final (Llegada) *</label>
-                    <input type="number" id="km-final" name="km_final" placeholder="Lectura al finalizar la ruta" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner">
+                    <input type="number" id="km-final" name="km_final" placeholder="Lectura al finalizar la ruta" required class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-red-500 transition shadow-inner font-mono">
                 </div>
             </div>
 
@@ -78,6 +79,10 @@
     const sucursalSelect = document.getElementById('sucursal-select');
     const placaSelect = document.getElementById('placa-select');
     const placaManualInput = document.getElementById('placa-manual-input');
+    const kmInicialInput = document.getElementById('km-inicial');
+    const kmInicialAviso = document.getElementById('km-inicial-aviso');
+    const kmFinalInput = document.getElementById('km-final');
+    const kmTotalDisplay = document.getElementById('km-total-display');
 
     sucursalSelect.addEventListener('change', function() {
         const sucursalSeleccionada = this.value;
@@ -85,12 +90,15 @@
         placaManualInput.removeAttribute('required');
         placaManualInput.value = '';
 
+        // Limpiar y desbloquear KM inicial al cambiar de sucursal
+        resetKmInicial();
+
         placaSelect.innerHTML = '<option value="">-- Elige un vehículo --</option>';
         if (sucursalSeleccionada && datosFlota[sucursalSeleccionada]) {
             datosFlota[sucursalSeleccionada].forEach(v => {
                 const option = document.createElement('option');
-                option.value = v.placa; // Se guarda únicamente la placa
-                option.textContent = v.texto; // Muestra: M-607460 - YAMAHA YBR 125 ED (2020)
+                option.value = v.placa;
+                option.textContent = v.texto;
                 placaSelect.appendChild(option);
             });
             const optionOtro = document.createElement('option');
@@ -103,20 +111,49 @@
     });
 
     placaSelect.addEventListener('change', function() {
-        if (this.value === 'OTRO') {
+        const placa = this.value;
+        
+        if (placa === 'OTRO') {
             placaManualInput.classList.remove('hidden');
             placaManualInput.setAttribute('required', 'required');
             placaManualInput.focus();
+            resetKmInicial(); // Si es placa manual, habilitamos KM inicial libre
         } else {
             placaManualInput.classList.add('hidden');
             placaManualInput.removeAttribute('required');
             placaManualInput.value = '';
+
+            if (placa) {
+                // Consultamos al servidor si ya existe un recorrido previo para esta placa
+                fetch(`/api/vehiculo/${placa}/ultimo-km`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.existe) {
+                            kmInicialInput.value = data.km_inicial;
+                            kmInicialInput.setAttribute('readonly', true);
+                            kmInicialInput.classList.add('bg-gray-800/40', 'cursor-not-allowed', 'text-gray-400');
+                            kmInicialInput.classList.remove('bg-gray-800', 'text-white');
+                            kmInicialAviso.classList.remove('hidden');
+                            calcularDiferenciaKM();
+                        } else {
+                            resetKmInicial();
+                        }
+                    })
+                    .catch(error => console.error('Error al consultar el último km:', error));
+            } else {
+                resetKmInicial();
+            }
         }
     });
 
-    const kmInicialInput = document.getElementById('km-inicial');
-    const kmFinalInput = document.getElementById('km-final');
-    const kmTotalDisplay = document.getElementById('km-total-display');
+    function resetKmInicial() {
+        kmInicialInput.value = '';
+        kmInicialInput.removeAttribute('readonly');
+        kmInicialInput.classList.remove('bg-gray-800/40', 'cursor-not-allowed', 'text-gray-400');
+        kmInicialInput.classList.add('bg-gray-800', 'text-white');
+        kmInicialAviso.classList.add('hidden');
+        calcularDiferenciaKM();
+    }
 
     function calcularDiferenciaKM() {
         const inicial = parseFloat(kmInicialInput.value) || 0;
