@@ -1,4 +1,4 @@
-FROM php:8.4-apache
+FROM php:8.2-apache
 
 # Instalar dependencias del sistema y extensiones de PHP requeridas por Laravel
 RUN apt-get update && apt-get install -y \
@@ -29,9 +29,12 @@ RUN composer install --no-interaction --optimize-autoloader --no-dev
 # Asegurar permisos para Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Apuntar Apache a la carpeta /public de Laravel
+# Apuntar Apache a la carpeta /public de Laravel y cambiar al puerto 8080 para Railway
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-EXPOSE 80
+# Escuchar en el puerto 8080 compatible con Railway
+RUN sed -ri -e 's!80!8080!g' /etc/apache2/ports.conf /etc/apache2/sites-available/000-default.conf
+
+EXPOSE 8080
