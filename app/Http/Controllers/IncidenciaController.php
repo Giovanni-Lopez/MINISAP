@@ -151,14 +151,16 @@ class IncidenciaController extends Controller
         $datos = collect();
 
         if ($tipo === 'combustible') {
-            // Apuntamos al modelo correcto que se ve en tu carpeta Models
             $datos = \App\Models\RegistroCombustible::orderBy('fecha', 'desc')->paginate(15);
         } elseif ($tipo === 'kilometraje') {
             $datos = \App\Models\KmDiario::orderBy('created_at', 'desc')->paginate(15);
         } elseif ($tipo === 'revisiones') {
-            $datos = \App\Models\Incidencia::where('estado', 'Resuelto')->orderBy('updated_at', 'desc')->paginate(15);
+            $datos = \App\Models\Incidencia::whereIn('estado', ['Resuelto', 'RESUELTO'])->orderBy('updated_at', 'desc')->paginate(15);
         }
 
-        return view('ops.historial', compact('datos', 'tipo'));
+        // Definimos ambas variables para garantizar compatibilidad con los partials de las vistas
+        $registros = $datos;
+
+        return view('ops.historial', compact('datos', 'registros', 'tipo'));
     }
 }
